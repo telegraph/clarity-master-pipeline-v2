@@ -1,0 +1,11 @@
+default:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: tmg-plat-dev
+      dataset: clairty_publishdata_test
+      threads: 8
+      keyfile: /google-keys/dev-pipeline.json
+      timeout_seconds: 300
