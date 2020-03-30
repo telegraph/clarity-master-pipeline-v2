@@ -91,3 +91,28 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
         is_delete_operator_pod=True,
         **kwargs
     )
+
+
+def factory_kubernetes_task(task_id, image, args, pool=None, **kwargs):
+    """
+    Factory method to create a KubernetesPodOperator
+    :param str task_id: The task id
+    :param str image: the image name
+    :param list args: list of arguments for args parameter
+    :param str pool: Pool to which this task should belong to
+    :param dict kwargs: dictionary with kwargs
+    :return KubernetesPodOperator:
+    """
+    return TMGKubernetesPodOperator(
+        task_id=task_id,
+        name=task_id,
+        pool=pool,
+        namespace="default",
+        image=image,
+        get_logs=True,
+        cmds=["python"],
+        arguments=args,
+        affinity=DEFAULT_KUBERNETES_AFFINITY,
+        is_delete_operator_pod=True,
+        **kwargs
+    )

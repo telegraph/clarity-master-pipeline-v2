@@ -1,3 +1,7 @@
+####################################
+######## dbtRunner config ##########
+####################################
+
 dbt:
   repositories:
     dim-spark-campaign: git@github.com:telegraph/clarity-dim-spark-campaigns-pipeline
@@ -16,3 +20,51 @@ pipelines:
       materialized: table
     dbt_tag: 
     
+
+
+
+
+####################################
+##### ClarityPublishJob config #####
+####################################
+
+
+logger:
+  push_to_pubsub: false
+
+project: tmg-plat-dev
+
+pubsub:
+  subscription_name: #sid-consumer
+
+mysql:
+  instance_name: tmg-plat-dev:europe-west1:clarity-test
+  database: clarity
+  tmp_mysql_schema: 
+  host: '192.158.29.106' #sqlproxy-service-clarity-dev
+  user: root
+  password: root
+
+
+bq:
+  dataset: clairty_publishdata_test
+  sanity_check_dataset: clairty_publishdata_test
+  sanity_check_table: publishJob_status
+  delta_dataset: sid_transfer_deltas
+
+gcs:
+  bucket: clarity-configs
+  file_ending: .csv
+
+
+transfers:
+
+  dim-spark-campaigns:
+    transfer:
+      method: truncate
+
+    bq_table: dim_spark_campaigns
+    mysql_table: dim_spark_campaigns
+    table_indexes:
+      - name: campaign_index
+        columns: campaign

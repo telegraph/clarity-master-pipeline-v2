@@ -16,7 +16,7 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = timedelta(days=1)
-START_DATE = datetime(2020, 3, 26)
+START_DATE = None #datetime(2020, 3, 26)
 DEPEND_ON_PAST = False
 CATCHUP = False
 
