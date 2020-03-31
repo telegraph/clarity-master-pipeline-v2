@@ -52,3 +52,46 @@ class DBTMasterPipelineConfiguration:
             self.pipelines_configurations.append(
                 DBTPipelineConfiguration(pipeline_name, pipeline_config, self.dbt_configuration)
             )
+
+MysqlPublisherJob = namedtuple('MysqlPublisherJob', 'name transfer_name full_refresh')
+
+class MysqlPublisherJobConfiguration:
+
+    def __init__(self, mysql_publisher_job_filename):
+        self.job_list = {}
+        self.image = None
+        self.image_version = None
+        self.configuration_file = None
+        self.google_app_credentials = None
+
+        yaml_content = self._read_file(mysql_publisher_job_filename)
+
+        self._populate(yaml_content)
+
+    def _read_file(self, mysql_publisher_file_name):
+        with open(mysql_publisher_file_name) as config_file:
+            yaml_content = yaml.load(config_file.read(), Loader=yaml.SafeLoader)
+        return yaml_content
+
+    def _populate(self, configuration):
+        self.image = configuration['publisher']['image']
+        self.image_version = configuration['publisher']['version']
+        self.configuration_file = configuration['publisher']['configuration_file']
+        self.google_app_credentials = configuration['publisher']['google_app_credentials']
+
+        for pipeline_name, publisher_config_list in configuration['publisher']['pipelines'].items():
+            self.job_list[pipeline_name] = []
+            for publisher_config in publisher_config_list:
+                publisher_job = MysqlPublisherJob(pipeline_name,
+                                                  publisher_config['transfer_name'],
+                                                  publisher_config.get('full_refresh', False)
+                                                  )
+
+                self.job_list[pipeline_name].append(publisher_job)
+
+    @property
+    def task_configuration(self):
+        return {
+            "image_name": self.image,
+            "version": self.image_version
+        }

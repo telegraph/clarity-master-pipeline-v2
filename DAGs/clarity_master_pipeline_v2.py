@@ -15,8 +15,8 @@ from clarity_library.utilities import email_notifier
 MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SCHEDULED_INTERVAL = timedelta(days=1)
-START_DATE = 'None' #datetime(2020, 3, 26)
+SCHEDULED_INTERVAL = None #timedelta(days=1)
+START_DATE = datetime(2020, 3, 26)
 DEPEND_ON_PAST = False
 CATCHUP = False
 
@@ -65,6 +65,10 @@ dbt_pipeline_configuration = configuration.DBTMasterPipelineConfiguration(
 )
 
 
+publisher_config = configuration.MysqlPublisherJobConfiguration(
+    os.path.join(CURRENT_DIR, RuntimeConfig.CONFIG_DIR, CONFIG_FILE_NAME)
+)
+
 with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
     task_list = {}
     upstream_list = {}
@@ -74,11 +78,37 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
     for pipeline in dbt_pipeline_configuration.pipelines_configurations:
         clarity_task = factory.factory_dbt_task(pipeline, RuntimeConfig)
         task_list[pipeline.name] = clarity_task
+        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
 
-        args = []
-        publish_task = factory.factory_kubernetes_task('publish_'+pipeline.name,
-            'eu.gcr.io/tmg-datalake/claritypublisherjob:1.0.0',
-             )
+        for pipeline_name, publisher_jobs in publisher_config.job_list.items():
+
+            matching_publish_tasks = []
+            if pipeline.name == pipeline_name:
+
+                for publisher_job in publisher_jobs:
+                    
+
+                    job_arguments = [
+                        RuntimeConfig.EXECUTION_DATE,
+                        publisher_job.transfer_name,
+                        publisher_config.configuration_file
+
+                    ]
+
+                    clarity_publisher_task = factory.factory_publisher_job(
+                        task_id='{}-mysql-publisher-job'.format(publisher_job.transfer_name),
+                         publisher_config=publisher_config,
+                            job_arguments=job_arguments
+                            )
+                    clarity_publisher_task.trigger_rule = TriggerRule.ALL_SUCCESS
+
+                    matching_publish_tasks.append(clarity_publisher_task)
+
+
+            clarity_task.set_downstream(matching_publish_tasks)
+
+
+
 
 
 '''

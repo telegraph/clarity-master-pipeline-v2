@@ -1,4 +1,5 @@
 ####################################
+          #   STEP 1    #
 ######## dbtRunner config ##########
 ####################################
 
@@ -24,9 +25,10 @@ pipelines:
 
 
 
-####################################
-##### ClarityPublishJob config #####
-####################################
+###########################################
+      #     STEP 2      #
+##### ClarityPublishJob config part 1 #####
+###########################################
 
 
 logger:
@@ -41,7 +43,7 @@ mysql:
   instance_name: tmg-plat-dev:europe-west1:clarity-test
   database: clarity
   tmp_mysql_schema: 
-  host: '192.158.29.106' #sqlproxy-service-clarity-dev
+  host: sqlproxy-service-clarity-dev #'192.158.29.106' #sqlproxy-service-clarity-dev
   user: root
   password: root
 
@@ -69,3 +71,30 @@ transfers:
     table_indexes:
       - name: campaign_index
         columns: campaign
+
+
+
+
+###########################################
+      #     STEP 3     #
+##### ClarityPublishJob config part 2 #####
+###########################################
+
+publisher:
+  image: claritypublisherjob
+  version: 1.0.6
+  configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
+  google_app_credentials: '/google-keys/dev-pipeline.json'
+
+
+  pipelines:
+    dim-spark-campaigns:
+      - transfer_name: dim-spark-campaigns
+
+
+
+
+
+
+
+

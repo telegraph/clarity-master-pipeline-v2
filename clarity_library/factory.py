@@ -93,26 +93,31 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
     )
 
 
-def factory_kubernetes_task(task_id, image, args, pool=None, **kwargs):
+def factory_publisher_job(task_id, publisher_config, job_arguments):
     """
-    Factory method to create a KubernetesPodOperator
-    :param str task_id: The task id
-    :param str image: the image name
-    :param list args: list of arguments for args parameter
-    :param str pool: Pool to which this task should belong to
-    :param dict kwargs: dictionary with kwargs
-    :return KubernetesPodOperator:
+    :param task_id:
+    :param publisher_config:
+    :param job_arguments:
+    :return:
     """
+    task_config = publisher_config.task_configuration
+
+    image_name = "eu.gcr.io/tmg-datalake/{}:{}".format(task_config['image_name'], task_config["version"])
+    pod_arguments = ["clarityPublisherJob"] + job_arguments
+
+    kubernetes_friendly_pod_name = task_id.replace("_", "-")
+
     return TMGKubernetesPodOperator(
         task_id=task_id,
-        name=task_id,
-        pool=pool,
+        name=kubernetes_friendly_pod_name,
         namespace="default",
-        image=image,
+        #pool='sql_publisher_job',
+        image=image_name,
         get_logs=True,
-        cmds=["python"],
-        arguments=args,
+        cmds=pod_arguments,
+        arguments={},
         affinity=DEFAULT_KUBERNETES_AFFINITY,
         is_delete_operator_pod=True,
-        **kwargs
+        env_vars={'GOOGLE_APPLICATION_CREDENTIALS': publisher_config.google_app_credentials}
     )
+
