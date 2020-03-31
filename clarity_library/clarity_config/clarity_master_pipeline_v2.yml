@@ -62,6 +62,7 @@ transfers:
   dim-spark-campaigns:
     transfer:
       method: truncate
+      load_data_infile: load_dim_spark_campaigns.sql
 
     bq_table: dim_spark_campaigns
     mysql_table: dim_spark_campaigns

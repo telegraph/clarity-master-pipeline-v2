@@ -16,7 +16,7 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = timedelta(days=1)
-START_DATE = None #datetime(2020, 3, 26)
+START_DATE = 'None' #datetime(2020, 3, 26)
 DEPEND_ON_PAST = False
 CATCHUP = False
 
@@ -75,6 +75,13 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
         clarity_task = factory.factory_dbt_task(pipeline, RuntimeConfig)
         task_list[pipeline.name] = clarity_task
 
+        args = []
+        publish_task = factory.factory_kubernetes_task('publish_'+pipeline.name,
+            'eu.gcr.io/tmg-datalake/claritypublisherjob:1.0.0',
+             )
+
+
+'''
         if pipeline.upstreams:
             upstream_list[clarity_task.task_id] = pipeline.upstreams
         if pipeline.downstreams:
@@ -89,3 +96,4 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
         clarity_task = task_list[clarity_task_name]
         clarity_task.set_downstream([task_list[pipeline_name] for pipeline_name in downstreams])
         clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
+'''
