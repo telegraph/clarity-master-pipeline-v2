@@ -6,6 +6,7 @@
 dbt:
   repositories:
     dim-spark-campaign: git@github.com:telegraph/clarity-dim-spark-campaigns-pipeline
+    dfp: git@github.com:telegraph/clarity-dfp-pipeline.git
   profile: 'gs://clarity-configs/clarity-dbt-profiles.yml'
   image: 'eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0'
   environment: dev
@@ -13,14 +14,24 @@ dbt:
 
 
 pipelines:
+
   dim-spark-campaigns:
     type: DBT 
     git_repository: dim-spark-campaign
     git_branch: DT-4316
-    dbt_vars:
+    dbt_vars: 
       materialized: table
     dbt_tag: 
-    
+    af_downstreams:
+      - dfp
+  
+  dfp:
+    type: DBT
+    git_repository: dfp
+    git_branch: DT-4323
+    dbt_vars: 
+      materialized: table
+    dbt_tag:
 
 
 
@@ -43,7 +54,7 @@ mysql:
   instance_name: tmg-plat-dev:europe-west1:clarity-test
   database: clarity
   tmp_mysql_schema: 
-  host: sqlproxy-service-clarity-dev #'192.158.29.106' #sqlproxy-service-clarity-dev
+  host: '192.158.29.106' #'192.158.29.106' #sqlproxy-service-clarity-dev
   user: root
   password: root
 
@@ -65,14 +76,51 @@ transfers:
     transfer:
       method: truncate
       load_data_infile: load_dim_spark_campaigns.sql
-
     bq_table: dim_spark_campaigns
     mysql_table: dim_spark_campaigns
     table_indexes:
       - name: campaign_index
         columns: campaign
 
+  addelivery-hub-dfp:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_hub_dfp.sql
+    bq_table: addelivery_hub_dfp
+    mysql_table: addelivery_hub_dfp
+    table_indexes: 
+      - name: campaign_index
+        columns: campaign
 
+  addelivery-ros-dfp:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_ros_dfp.sql
+    bq_table: addelivery_ros_dfp
+    mysql_table: addelivery_ros_dfp
+    table_indexes: 
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-ros-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_ros_allplatforms.sql
+    bq_table: addelivery_ros_allplatforms
+    mysql_table: addelivery_ros_allplatforms
+    table_indexes: 
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-hub-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_hub_allplatforms.sql
+    bq_table: addelivery_hub_allplatforms
+    mysql_table: addelivery_hub_allplatforms
+    table_indexes: 
+      - name: campaign_index
+        columns: campaign
 
 
 ###########################################
@@ -82,7 +130,7 @@ transfers:
 
 publisher:
   image: claritypublisherjob
-  version: 1.0.6
+  version: 1.0.7
   configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
   google_app_credentials: '/google-keys/dev-pipeline.json'
 
@@ -91,7 +139,11 @@ publisher:
     dim-spark-campaigns:
       - transfer_name: dim-spark-campaigns
 
-
+    dfp:
+      - transfer_name: addelivery-ros-dfp
+        af_downstreams: addelivery-ros-allplatforms
+      - transfer_name: addelivery-hub-dfp
+        af_downstreams: addelivery-hub-allplatforms
 
 
 

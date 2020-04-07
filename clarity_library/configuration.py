@@ -53,7 +53,8 @@ class DBTMasterPipelineConfiguration:
                 DBTPipelineConfiguration(pipeline_name, pipeline_config, self.dbt_configuration)
             )
 
-MysqlPublisherJob = namedtuple('MysqlPublisherJob', 'name transfer_name full_refresh')
+# added downsteams to named tuple for cases where publisher job needs to link to another 
+MysqlPublisherJob = namedtuple('MysqlPublisherJob', 'name transfer_name full_refresh downstreams')
 
 class MysqlPublisherJobConfiguration:
 
@@ -84,7 +85,8 @@ class MysqlPublisherJobConfiguration:
             for publisher_config in publisher_config_list:
                 publisher_job = MysqlPublisherJob(pipeline_name,
                                                   publisher_config['transfer_name'],
-                                                  publisher_config.get('full_refresh', False)
+                                                  publisher_config.get('full_refresh', False),
+                                                  publisher_config.get('af_downstreams', False) #added
                                                   )
 
                 self.job_list[pipeline_name].append(publisher_job)

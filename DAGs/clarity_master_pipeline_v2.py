@@ -80,6 +80,10 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
         task_list[pipeline.name] = clarity_task
         clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
 
+        if pipeline.downstreams:
+            downstream_list[clarity_task.task_id] = pipeline.downstreams
+
+        #linking publish tasks to pipeline tasks
         for pipeline_name, publisher_jobs in publisher_config.job_list.items():
 
             matching_publish_tasks = []
@@ -103,11 +107,24 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
                     clarity_publisher_task.trigger_rule = TriggerRule.ALL_SUCCESS
 
                     matching_publish_tasks.append(clarity_publisher_task)
+                    
+                    # adding publish tasks that are downstream of other publish taskds
+                    if publisher_job.downstreams:
 
+                        clarity_publisher_task_ds = factory.factory_publisher_job(
+                        task_id='{}-mysql-publisher-job'.format(publisher_job.downstreams),
+                         publisher_config=publisher_config,
+                            job_arguments=job_arguments)
 
+                        clarity_publisher_task_ds.trigger_rule = TriggerRule.ALL_SUCCESS
+                        clarity_publisher_task.set_downstream(clarity_publisher_task_ds)
+                    
             clarity_task.set_downstream(matching_publish_tasks)
 
-
+    for clarity_task_name, downstreams in downstream_list.items():
+        clarity_task = task_list[clarity_task_name] 
+        clarity_task.set_downstream([task_list[pipeline_name] for pipeline_name in downstreams])
+        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
 
 
 
