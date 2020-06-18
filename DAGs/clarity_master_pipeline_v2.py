@@ -34,7 +34,7 @@ CONFIG_FILE_NAME = "clarity_master_pipeline_v2.yml"
 class RuntimeConfig:
     DATE_FORMAT_SHORT = "%Y%m%d"
 
-    EXECUTION_DATE = "{{ ds_nodash }}"
+    EXECUTION_DATE = "{{ yesterday_ds_nodash }}"
 
     DOCKER_REGISTRY = "eu.gcr.io/tmg-datalake/"
     CONFIG_DIR = "clarity-config"
@@ -110,6 +110,9 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
                     
                     # adding publish tasks that are downstream of other publish taskds
                     if publisher_job.downstreams:
+
+                        # changing the transfer name to the downstream task name 
+                        job_arguments[1] = publisher_job.downstreams
 
                         clarity_publisher_task_ds = factory.factory_publisher_job(
                         task_id='{}-mysql-publisher-job'.format(publisher_job.downstreams),

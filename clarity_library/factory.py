@@ -1,16 +1,3 @@
-import os
-import itertools
-import datetime as dt
-
-from airflow.contrib.operators.bigquery_operator import BigQueryOperator
-from airflow.contrib.operators.pubsub_operator import PubSubPublishOperator
-from airflow.contrib.sensors.bigquery_sensor import BigQueryTableSensor
-from airflow.operators.sensors import ExternalTaskSensor
-from airflow.contrib.operators.bigquery_operator import BigQueryOperator
-from airflow.contrib.operators.bigquery_to_bigquery import BigQueryToBigQueryOperator
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import ShortCircuitOperator, BranchPythonOperator
-
 from airflow.operators.tmg_kubernetes import TMGKubernetesPodOperator
 
 
@@ -81,7 +68,6 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
     return TMGKubernetesPodOperator(
         task_id=task_id,
         name=task_id,
-        # pool=pool,
         namespace="default",
         image=image,
         wait_for_downstream=pipeline_configuration.wait_for_downstream,
@@ -102,7 +88,8 @@ def factory_publisher_job(task_id, publisher_config, job_arguments):
     """
     task_config = publisher_config.task_configuration
 
-    image_name = "eu.gcr.io/tmg-datalake/{}:{}".format(task_config['image_name'], task_config["version"])
+    image_name = "eu.gcr.io/tmg-datalake/{}:{}".format(
+        task_config['image_name'], task_config["version"])
     pod_arguments = ["clarityPublisherJob"] + job_arguments
 
     kubernetes_friendly_pod_name = task_id.replace("_", "-")
@@ -111,13 +98,12 @@ def factory_publisher_job(task_id, publisher_config, job_arguments):
         task_id=task_id,
         name=kubernetes_friendly_pod_name,
         namespace="default",
-        #pool='sql_publisher_job',
         image=image_name,
         get_logs=True,
         cmds=pod_arguments,
         arguments={},
         affinity=DEFAULT_KUBERNETES_AFFINITY,
         is_delete_operator_pod=True,
-        env_vars={'GOOGLE_APPLICATION_CREDENTIALS': publisher_config.google_app_credentials}
+        env_vars={'GOOGLE_APPLICATION_CREDENTIALS':
+                  publisher_config.google_app_credentials}
     )
-

@@ -6,7 +6,16 @@
 dbt:
   repositories:
     dim-spark-campaign: git@github.com:telegraph/clarity-dim-spark-campaigns-pipeline
+    dim-spark-campaigns-urls: git@github.com:telegraph/clarity-dim-spark-campaigns-urls-pipeline.git
     dfp: git@github.com:telegraph/clarity-dfp-pipeline.git
+    ooyala-youtube: git@github.com:telegraph/clarity-ooyala-youtube-pipeline.git
+    video-teads: git@github.com:telegraph/clarity-teads-pipeline.git
+    competition-formstack: git@github.com:telegraph/clarity-formstack-pipeline.git
+    competition-wayin: git@github.com:telegraph/clarity-wayin-pipeline.git
+    competition-allplatforms: git@github.com:telegraph/clarity-competition-allplatforms-pipeline.git
+    video-youtube: git@github.com:telegraph/clarity-youtube-pipeline.git
+    video-allplatforms: git@github.com:telegraph/clarity-video-allplatforms-pipeline.git
+    tcuk: git@github.com:telegraph/clarity-tcuk-pipeline.git
   profile: 'gs://clarity-configs/clarity-dbt-profiles.yml'
   image: 'eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0'
   environment: dev
@@ -24,7 +33,22 @@ pipelines:
     dbt_tag: 
     af_downstreams:
       - dfp
-  
+      - ooyala-youtube
+      - video-teads
+      - competition-formstack  
+      - competition-wayin
+      - video-youtube
+      - tcuk
+
+  dim-spark-campaigns-urls:
+    type: DBT 
+    git_repository: dim-spark-campaign
+    git_branch: DT-4359
+    dbt_vars: 
+      materialized: table
+    dbt_tag: 
+    af_downstreams:
+
   dfp:
     type: DBT
     git_repository: dfp
@@ -33,7 +57,81 @@ pipelines:
       materialized: table
     dbt_tag:
 
+  ooyala-youtube:
+    type: DBT
+    git_repository: ooyala-youtube
+    git_branch: DT-4325
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams: 
+      - video-allplatforms
 
+  video-teads:
+    type: DBT
+    git_repository: video-teads
+    git_branch: DT-4329
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams: 
+      - video-allplatforms
+
+  competition-formstack:
+    type: DBT
+    git_repository: competition-formstack
+    git_branch: DT-4332
+    dbt_vars:
+      materialized: table
+    dbt_tag: 
+    af_downstreams:
+      - competition-allplatforms
+
+  competition-wayin:
+    type: DBT
+    git_repository: competition-wayin
+    git_branch: DT-4335
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - competition-allplatforms
+
+  video-youtube:
+    type: DBT
+    git_repository: video-youtube
+    git_branch: DT-4336
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - video-allplatforms
+
+  video-allplatforms:
+    type: DBT
+    git_repository: video-allplatforms
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+  tcuk:
+    type: DBT
+    git_repository: tcuk
+    git_branch: DT-4345
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - dim-spark-campaigns-urls
+
+  competition-allplatforms:
+    type: DBT
+    git_repository: competition-allplatforms
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
 
 
 ###########################################
@@ -122,6 +220,74 @@ transfers:
       - name: campaign_index
         columns: campaign
 
+  ooyala-youtube:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_ooyala_youtube.sql
+    bq_table: video_ooyala_youtube
+    mysql_table: video_ooyala_youtube
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  video-teads:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_teads.sql
+    bq_table: video_teads
+    mysql_table: video_teads
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-formstack:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_formstack.sql
+    bq_table: competition_formstack
+    mysql_table: competition_formstack
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-wayin:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_wayin.sql
+    bq_table: competition_wayin
+    mysql_table: competition_wayin
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  video-youtube:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_youtube.sql
+    bq_table: video_youtube
+    mysql_table: video_youtube
+    table_indexes:
+
+  video-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_allplatforms.sql
+    bq_table: video_allplatforms
+    mysql_table: video_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_allplatforms.sql
+    bq_table: competition_allplatforms
+    mysql_table: competition_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
 
 ###########################################
       #     STEP 3     #
@@ -130,12 +296,13 @@ transfers:
 
 publisher:
   image: claritypublisherjob
-  version: 1.0.7
-  configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
+  version: 1.0.14
+  configuration_file: gs://europe-west1-develop-airflo-8a892b22-bucket/dags/clarity-config/clarity_master_pipeline_v2.yml
   google_app_credentials: '/google-keys/dev-pipeline.json'
 
 
   pipelines:
+
     dim-spark-campaigns:
       - transfer_name: dim-spark-campaigns
 
@@ -145,8 +312,26 @@ publisher:
       - transfer_name: addelivery-hub-dfp
         af_downstreams: addelivery-hub-allplatforms
 
+    ooyala-youtube:
+      - transfer_name: ooyala-youtube
 
+    video-teads:
+      - transfer_name: video-teads 
 
+    competition-formstack:
+      - transfer_name: competition-formstack
+
+    competition-wayin:
+      - transfer_name: competition-wayin
+
+    video-youtube:
+      - transfer_name: video-youtube
+
+    video-allplatforms:
+      - transfer_name: video-allplatforms
+
+    competition-allplatforms:
+      - transfer_name: competition-allplatforms
 
 
 
