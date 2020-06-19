@@ -1,5 +1,5 @@
 ####################################
-          #   STEP 1    #
+#   STEP 1    #
 ######## dbtRunner config ##########
 ####################################
 
@@ -16,44 +16,43 @@ dbt:
     video-youtube: git@github.com:telegraph/clarity-youtube-pipeline.git
     video-allplatforms: git@github.com:telegraph/clarity-video-allplatforms-pipeline.git
     tcuk: git@github.com:telegraph/clarity-tcuk-pipeline.git
-  profile: 'gs://clarity-configs/clarity-dbt-profiles.yml'
-  image: 'eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0'
+    newsapp: git@github.com:telegraph/clarity-newsapp-pipeline.git
+  profile: "gs://clarity-configs/clarity-dbt-profiles.yml"
+  image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
   environment: dev
 
-
-
 pipelines:
-
   dim-spark-campaigns:
-    type: DBT 
+    type: DBT
     git_repository: dim-spark-campaign
     git_branch: DT-4316
-    dbt_vars: 
+    dbt_vars:
       materialized: table
-    dbt_tag: 
+    dbt_tag:
     af_downstreams:
       - dfp
       - ooyala-youtube
       - video-teads
-      - competition-formstack  
+      - competition-formstack
       - competition-wayin
       - video-youtube
       - tcuk
 
   dim-spark-campaigns-urls:
-    type: DBT 
+    type: DBT
     git_repository: dim-spark-campaign
     git_branch: DT-4359
-    dbt_vars: 
+    dbt_vars:
       materialized: table
-    dbt_tag: 
+    dbt_tag:
     af_downstreams:
+      - newsapp
 
   dfp:
     type: DBT
     git_repository: dfp
     git_branch: DT-4323
-    dbt_vars: 
+    dbt_vars:
       materialized: table
     dbt_tag:
 
@@ -64,7 +63,7 @@ pipelines:
     dbt_vars:
       materialized: table
     dbt_tag:
-    af_downstreams: 
+    af_downstreams:
       - video-allplatforms
 
   video-teads:
@@ -74,7 +73,7 @@ pipelines:
     dbt_vars:
       materialized: table
     dbt_tag:
-    af_downstreams: 
+    af_downstreams:
       - video-allplatforms
 
   competition-formstack:
@@ -83,7 +82,7 @@ pipelines:
     git_branch: DT-4332
     dbt_vars:
       materialized: table
-    dbt_tag: 
+    dbt_tag:
     af_downstreams:
       - competition-allplatforms
 
@@ -133,12 +132,18 @@ pipelines:
       materialized: table
     dbt_tag:
 
+  newsapp:
+    type: DBT
+    git_repository: newsapp
+    git_branch: DT-4375
+    dbt_vars:
+      materialized: table
+    dbt_tag:
 
 ###########################################
-      #     STEP 2      #
+#     STEP 2      #
 ##### ClarityPublishJob config part 1 #####
 ###########################################
-
 
 logger:
   push_to_pubsub: false
@@ -151,11 +156,10 @@ pubsub:
 mysql:
   instance_name: tmg-plat-dev:europe-west1:clarity-test
   database: clarity
-  tmp_mysql_schema: 
-  host: '192.158.29.106' #'192.158.29.106' #sqlproxy-service-clarity-dev
+  tmp_mysql_schema:
+  host: "192.158.29.106" #'192.158.29.106' #sqlproxy-service-clarity-dev
   user: root
   password: root
-
 
 bq:
   dataset: clairty_publishdata_test
@@ -167,9 +171,7 @@ gcs:
   bucket: clarity-configs
   file_ending: .csv
 
-
 transfers:
-
   dim-spark-campaigns:
     transfer:
       method: truncate
@@ -186,7 +188,7 @@ transfers:
       load_data_infile: load_addelivery_hub_dfp.sql
     bq_table: addelivery_hub_dfp
     mysql_table: addelivery_hub_dfp
-    table_indexes: 
+    table_indexes:
       - name: campaign_index
         columns: campaign
 
@@ -196,7 +198,7 @@ transfers:
       load_data_infile: load_addelivery_ros_dfp.sql
     bq_table: addelivery_ros_dfp
     mysql_table: addelivery_ros_dfp
-    table_indexes: 
+    table_indexes:
       - name: campaign_index
         columns: campaign
 
@@ -206,7 +208,7 @@ transfers:
       load_data_infile: load_addelivery_ros_allplatforms.sql
     bq_table: addelivery_ros_allplatforms
     mysql_table: addelivery_ros_allplatforms
-    table_indexes: 
+    table_indexes:
       - name: campaign_index
         columns: campaign
 
@@ -216,7 +218,7 @@ transfers:
       load_data_infile: load_addelivery_hub_allplatforms.sql
     bq_table: addelivery_hub_allplatforms
     mysql_table: addelivery_hub_allplatforms
-    table_indexes: 
+    table_indexes:
       - name: campaign_index
         columns: campaign
 
@@ -288,9 +290,8 @@ transfers:
       - name: campaign_index
         columns: campaign
 
-
 ###########################################
-      #     STEP 3     #
+#     STEP 3     #
 ##### ClarityPublishJob config part 2 #####
 ###########################################
 
@@ -298,11 +299,9 @@ publisher:
   image: claritypublisherjob
   version: 1.0.14
   configuration_file: gs://europe-west1-develop-airflo-8a892b22-bucket/dags/clarity-config/clarity_master_pipeline_v2.yml
-  google_app_credentials: '/google-keys/dev-pipeline.json'
-
+  google_app_credentials: "/google-keys/dev-pipeline.json"
 
   pipelines:
-
     dim-spark-campaigns:
       - transfer_name: dim-spark-campaigns
 
@@ -316,7 +315,7 @@ publisher:
       - transfer_name: ooyala-youtube
 
     video-teads:
-      - transfer_name: video-teads 
+      - transfer_name: video-teads
 
     competition-formstack:
       - transfer_name: competition-formstack
@@ -332,6 +331,3 @@ publisher:
 
     competition-allplatforms:
       - transfer_name: competition-allplatforms
-
-
-
