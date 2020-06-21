@@ -17,6 +17,7 @@ dbt:
     video-allplatforms: git@github.com:telegraph/clarity-video-allplatforms-pipeline.git
     tcuk: git@github.com:telegraph/clarity-tcuk-pipeline.git
     newsapp: git@github.com:telegraph/clarity-newsapp-pipeline.git
+    applenews: git@github.com:telegraph/clarity-applenews-pipeline.git
   profile: "gs://clarity-configs/clarity-dbt-profiles.yml"
   image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
   environment: dev
@@ -47,6 +48,7 @@ pipelines:
     dbt_tag:
     af_downstreams:
       - newsapp
+      - applenews
 
   dfp:
     type: DBT
@@ -136,6 +138,14 @@ pipelines:
     type: DBT
     git_repository: newsapp
     git_branch: DT-4375
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+  applenews:
+    type: DBT
+    git_repository: applenews
+    git_branch: DT-4374
     dbt_vars:
       materialized: table
     dbt_tag:
