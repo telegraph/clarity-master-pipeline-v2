@@ -16,8 +16,12 @@ dbt:
     video-youtube: git@github.com:telegraph/clarity-youtube-pipeline.git
     video-allplatforms: git@github.com:telegraph/clarity-video-allplatforms-pipeline.git
     tcuk: git@github.com:telegraph/clarity-tcuk-pipeline.git
+    article-tcuk: git@github.com:telegraph/clarity-article-tcuk-pipeline.git
     newsapp: git@github.com:telegraph/clarity-newsapp-pipeline.git
+    article-newsapp: git@github.com:telegraph/clarity-article-newsapp-pipeline.git
     applenews: git@github.com:telegraph/clarity-applenews-pipeline.git
+    article-applenews: git@github.com:telegraph/clarity-article-applenews-pipeline.git
+    article-allplatforms: git@github.com:telegraph/clarity-article-allplatforms-pipeline.git
   profile: "gs://clarity-configs/clarity-dbt-profiles.yml"
   image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
   environment: dev
@@ -41,7 +45,7 @@ pipelines:
 
   dim-spark-campaigns-urls:
     type: DBT
-    git_repository: dim-spark-campaign
+    git_repository: dim-spark-campaigns-urls
     git_branch: DT-4359
     dbt_vars:
       materialized: table
@@ -49,6 +53,7 @@ pipelines:
     af_downstreams:
       - newsapp
       - applenews
+      - article-tcuk
 
   dfp:
     type: DBT
@@ -126,6 +131,16 @@ pipelines:
     af_downstreams:
       - dim-spark-campaigns-urls
 
+  article-tcuk:
+    type: DBT
+    git_repository: article-tcuk
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
   competition-allplatforms:
     type: DBT
     git_repository: competition-allplatforms
@@ -141,11 +156,43 @@ pipelines:
     dbt_vars:
       materialized: table
     dbt_tag:
+    af_downstreams:
+      - article-newsapp
+
+  article-newsapp:
+    type: DBT
+    git_repository: article-newsapp
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
 
   applenews:
     type: DBT
     git_repository: applenews
     git_branch: DT-4374
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-applenews
+
+  article-applenews:
+    type: DBT
+    git_repository: article-applenews
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
+  article-allplatforms:
+    type: DBT
+    git_repository: article-allplatforms
+    git_branch: master
     dbt_vars:
       materialized: table
     dbt_tag:
@@ -167,7 +214,7 @@ mysql:
   instance_name: tmg-plat-dev:europe-west1:clarity-test
   database: clarity
   tmp_mysql_schema:
-  host: "192.158.29.106" #'192.158.29.106' #sqlproxy-service-clarity-dev
+  host: sqlproxy-service-clarity-dev #'192.158.29.106' #sqlproxy-service-clarity-dev
   user: root
   password: root
 
@@ -300,6 +347,45 @@ transfers:
       - name: campaign_index
         columns: campaign
 
+  article-applenews:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_applenews.sql
+    bq_table: article_applenews
+    mysql_table: article_applenews
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-newsapp:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_liveapp.sql
+    bq_table: article_liveapp
+    mysql_table: article_liveapp
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-tcuk:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_onsite.sql
+    bq_table: article_onsite
+    mysql_table: article_onsite
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_allplatforms.sql
+    bq_table: article_allplatforms
+    mysql_table: article_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
 ###########################################
 #     STEP 3     #
 ##### ClarityPublishJob config part 2 #####
@@ -307,8 +393,8 @@ transfers:
 
 publisher:
   image: claritypublisherjob
-  version: 1.0.14
-  configuration_file: gs://europe-west1-develop-airflo-8a892b22-bucket/dags/clarity-config/clarity_master_pipeline_v2.yml
+  version: 1.0.15
+  configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
   google_app_credentials: "/google-keys/dev-pipeline.json"
 
   pipelines:
@@ -341,3 +427,15 @@ publisher:
 
     competition-allplatforms:
       - transfer_name: competition-allplatforms
+
+    article-applenews:
+      - transfer_name: article-applenews
+
+    article-newsapp:
+      - transfer_name: article-newsapp
+
+    article-tcuk:
+      - transfer_name: article-tcuk
+
+    article-allplatforms:
+      - transfer_name: article-allplatforms
