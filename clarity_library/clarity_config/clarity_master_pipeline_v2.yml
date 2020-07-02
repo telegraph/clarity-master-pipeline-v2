@@ -393,7 +393,7 @@ transfers:
 
 publisher:
   image: claritypublisherjob
-  version: 1.0.15
+  version: 1.0.17
   configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
   google_app_credentials: "/google-keys/dev-pipeline.json"
 
