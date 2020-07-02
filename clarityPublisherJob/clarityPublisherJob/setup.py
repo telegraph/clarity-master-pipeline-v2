@@ -18,7 +18,7 @@ setup(
         ]
     },
     install_requires=[
-        'PyYAML==3.13',
+        'PyYAML==5.1',
         'tmg-etl-library==1.2.4',
         'click'
     ],
