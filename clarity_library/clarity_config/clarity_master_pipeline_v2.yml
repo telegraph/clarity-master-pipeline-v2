@@ -56,6 +56,7 @@ pipelines:
       - newsapp
       - applenews
       - article-tcuk
+      - twipe
 
   dfp:
     type: DBT
@@ -202,14 +203,14 @@ pipelines:
       - article-twipe
 
   article-twipe:
-  type: DBT
-  git_repository: article-twipe
-  git_branch: develop
-  dbt_vars:
-    materialized: table
-  dbt_tag:
-  af_downstreams:
-    - article-allplatforms
+    type: DBT
+    git_repository: article-twipe
+    git_branch: develop
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
 
   article-allplatforms:
     type: DBT
