@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sql-proxy-deployment
+  labels:
+    app: sql-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sql-proxy
+  template:
+    metadata:
+      labels:
+        app: sql-proxy
+    spec:
+      containers:
+      - name: sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.10
+        command: ["/cloud_sql_proxy",
+                  "-instances=tmg-plat-dev:europe-west2:nick-sid-dev=tcp:0.0.0.0:3306",
+                  "-credential_file=/secrets/cloudsql/dev-pipeline.json"]
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /secrets/cloudsql
+          readOnly: true
+      affinity: 
+          nodeAffinity: 
+              requiredDuringSchedulingIgnoredDuringExecution: 
+                  nodeSelectorTerms:
+                      - matchExpressions: 
+                          - key: 'cloud.google.com/gke-nodepool'
+                            operator: 'In'
+                            values: 
+                              - 'node-for-images'
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: sql-proxy-service
+spec:
+  selector:
+    app: sql-proxy
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+data:
+  dev-pipeline.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAidG1nLXBsYXQtZGV2IiwKICAicHJpdmF0ZV9rZXlfaWQiOiAiOGIwNmU4YzQ4NzhkYjE3Yzg0NzA3NjE3OTQ5OGUzYzY0NzlmOWMwNSIsCiAgInByaXZhdGVfa2V5IjogIi0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLVxuTUlJRXZ3SUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2t3Z2dTbEFnRUFBb0lCQVFEdDF5M2k5ZjBlMmxRd1xubWFsRzhCMWJxb1djVjNSTlJsQWxaNS9ic25HTGV1S1czVEx5VGNpY3BudnFnNGpQUUx2MFlEaHdod1hhRm5uQVxuVzRJbzYwanl0amJndkZ3UG9Vek1lbi9USnBMVngyZ3VuKzgzYUMzNzZ5MXQ0ay9ENEtXZzNuQ1UzdHo3bWQreVxua3hMbm1EWlFEQlRhRTk4dDdxVS8vK1ZJdHRmVjh4YVFTVDg3NG1iOWl5bFN6RjFYQWFwdjUvY3ZwaFA3S01oa1xuK3lFUGM2UmdzYzZoSEsrVFdYaHpOWHNPY3daMFFiTkRYbzJwcHhTQXRiQVlwOVl5UUZPTXBMZnhsVlZiNVh2Q1xuRUJSOGo5WklJSUtsYWVEaW8vL3pFNU5sK0s5Sk5YWHVPSCtpMFQ4UkN4cWNNM2NGbVduUlR1MUlncGdHNkhUYlxualdPM1FoU1ZBZ01CQUFFQ2dnRUJBTWNyTjdqazUrZkxTMDg3am43aUdxT2xvNmV0c0szNVlLcENJYU1YeG0vWVxuSXlIVThKSHFRMEd6UlBlNDJIcytLV2RXb0V6VE5UcFJNZm04Wjc0ZWNnTVdSZFJpeC9FcTBTWTJ1dzQyTWlZbFxuaTMvbjNLb1lhdEdZT24zWFU1YWphKy9QOXBVa0lBZnQ3bDhiUEd5R2tZenM0UlZTS01YTkg4TDlacU5Dd25IZFxuTnJmNmlOTjRGeGhWdVY0MkYxbGk1eHFSSDFqQlBJYU1mMVpiRmM5NWxldnY0TDhvREt0dXlNaHVnSjlVMlZjSFxucWRBUExaNG04cnFYZzdMcjJpbXk2MkdvdUViNGhZZWp3aDQzMlZyY3dLRXpxdkRMa1dXRUQ2aUxEaVljaENMOVxuUDdMZ2FQdFp6UXMwaTVERGpSdVVLSVF1bnFZOWpmK3hFQzVTaTFOdE5PRUNnWUVBL0toRVlzb29qYkNJQlE0NFxubW5GWGQ5VFlWWGtnVjI5d1YrWEdYS2ZyNVorNFBJek1MUU9qYWpSQUVRTlNpcDRIdG5qTC94RkxRaVNRc296L1xuTzRlK1l4RGpIa3EzTm1ndjhscFgvVzNjQWRCb2ZsdFlBTEg0TGhzQ3g0ZFpHUmc1cU56YitnUy9FY2pBcEtYMVxuK0dEaFFGSWRkTXVzTVVvNTA0QnVyVnNWSE0wQ2dZRUE4UHk2a3EvZEwzekQyQXNYdkQwTDIrSWJhMjB1cDk1U1xuWDM2MjRJNjhGSjBGVW9PZ3NQZTFCMGFsQnp6bGVSSTk0aGVhdDR0aU9OOUdrZDF3N21yRDBWU01xN3p5UXE2dlxuWlFDZkZiNU1MeDdWTHg5ZlBPVU9KUkZTR2t6UlZFaEZ0K1lyeUNRWGU4QTYzak43VU5UWDNNOEJLMHNQYVZIeVxuRTY4MTd6N1dWdWtDZ1lBMW5UTmR6MDVKdXVNeVIzRkZmTFcxN1FtM0lZdjJZZVJ5RW9WRVZqSGR1VVhzTzJoOFxuU09CZGdoYnlSVVUzdXc4aDdvSkRieFVNUlJ3YmQ0WVZ5TmxpeGt1YnV2a2o1M245TUtTcFY2MnZDTjJUcXFpRFxuQlVFSDc1MW9YOVZOV1BHclhxcWpaR3h6UnFseWh2RXFNc3k1ekhNSnZNcWVid1RVVjlXa25jWmVKUUtCZ1FEaVxuRm1rLzUyaGUvZkdMQmRVdDBDUUpGWmRkOE4vOXMvR2FEL3Fvc0tDNXdoclZNQktaRkx3czZGVTVkaU5mdEFLRVxuMUZwZDZwR3JBNlprZ05sTGhMVFQ5anZIZjR2VmphZVYzY0JpbU5kR3VlbU52U1FQc0dIVjJ1c3BLM3FVVlAyN1xucTJEVjh5NW85bzhFR2s2T0pqR2l3ajY1akVFWU1UNG93NCtaTmwzR3lRS0JnUUR3OFNDWkROcXRYVlpORUVSQVxuY2d4RU5EaUlWN3BqVjhteGtRc0xtelowRkR6czU2Ni9TbXppNGVudVhWdXVYQ200dlVFcUE1RkdrNlJnckJWcVxuWnl2SDEzdnV5VHJ1TnRJTzF3eEdPaHNnclJSUE43WGdhSHdxZVZlN1dqaFFDN2hiZDNXR1FXak5taVE4K2doaVxuYm9HaGw0d3VQdUh5U01JbHRQNm5leHoxVkE9PVxuLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLVxuIiwKICAiY2xpZW50X2VtYWlsIjogImRldi1waXBlbGluZUB0bWctcGxhdC1kZXYuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJjbGllbnRfaWQiOiAiMTE0OTYxMjk1MDE0Njk3MDk3Mzc2IiwKICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLAogICJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL3Rva2VuIiwKICAiYXV0aF9wcm92aWRlcl94NTA5X2NlcnRfdXJsIjogImh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL29hdXRoMi92MS9jZXJ0cyIsCiAgImNsaWVudF94NTA5X2NlcnRfdXJsIjogImh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL3JvYm90L3YxL21ldGFkYXRhL3g1MDkvZGV2LXBpcGVsaW5lJTQwdG1nLXBsYXQtZGV2LmlhbS5nc2VydmljZWFjY291bnQuY29tIgp9Cg==
+kind: Secret
+metadata:
+  name: cloudsql-instance-credentials
+  namespace: default
+  selfLink: /api/v1/namespaces/default/secrets/cloudsql-instance-credentials
+type: Opaque
