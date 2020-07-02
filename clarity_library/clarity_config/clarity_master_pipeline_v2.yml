@@ -22,6 +22,8 @@ dbt:
     applenews: git@github.com:telegraph/clarity-applenews-pipeline.git
     article-applenews: git@github.com:telegraph/clarity-article-applenews-pipeline.git
     article-allplatforms: git@github.com:telegraph/clarity-article-allplatforms-pipeline.git
+    twipe: git@github.com:telegraph/clarity-twipe-pipeline.git
+    article-twipe: git@github.com:telegraph/clarity-article-twipe-pipeline.git
   profile: "gs://clarity-configs/clarity-dbt-profiles.yml"
   image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
   environment: dev
@@ -188,6 +190,26 @@ pipelines:
     dbt_tag:
     af_downstreams:
       - article-allplatforms
+
+  twipe:
+    type: DBT
+    git_repository: twipe
+    git_branch: develop
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-twipe
+
+  article-twipe:
+  type: DBT
+  git_repository: article-twipe
+  git_branch: develop
+  dbt_vars:
+    materialized: table
+  dbt_tag:
+  af_downstreams:
+    - article-allplatforms
 
   article-allplatforms:
     type: DBT
@@ -377,6 +399,16 @@ transfers:
       - name: campaign_index
         columns: campaign
 
+  article-twipe:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_editions.sql
+    bq_table: article_editions
+    mysql_table: article_editions
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
   article-allplatforms:
     transfer:
       method: truncate
@@ -439,3 +471,6 @@ publisher:
 
     article-allplatforms:
       - transfer_name: article-allplatforms
+
+    article_twipe:
+      - transfer_name: article_twipe
