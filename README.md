@@ -22,10 +22,16 @@ This file is the controller for the entire pipeline and should be the only file 
 
 Each of the pipeline that are run my Clarity V2 can be found below
 
-> [Dim Spark Campaigns!](https://github.com/telegraph/clarity-dim-spark-campaigns-pipeline/tree/DV-4316)
-> [DFP!](https://github.com/telegraph/clarity-dfp-pipeline/tree/DT-4323)
-> [Ooyala Youtube!](https://github.com/telegraph/clarity-ooyala-youtube-pipeline/tree/DT-4325)
-> [Teads!](https://github.com/telegraph/clarity-teads-pipeline/tree/DT-4329)
-> [Formstack!](https://github.com/telegraph/clarity-formstack-pipeline/tree/DT-4332)
-> [Wayin!](https://github.com/telegraph/clarity-wayin-pipeline/tree/DT-4335)
+* [Dim Spark Campaigns!](https://github.com/telegraph/clarity-dim-spark-campaigns-pipeline/tree/DV-4316)
+* [DFP!](https://github.com/telegraph/clarity-dfp-pipeline/tree/DT-4323)
+* [Ooyala Youtube!](https://github.com/telegraph/clarity-ooyala-youtube-pipeline/tree/DT-4325)
+* [Teads!](https://github.com/telegraph/clarity-teads-pipeline/tree/DT-4329)
+* [Formstack!](https://github.com/telegraph/clarity-formstack-pipeline/tree/DT-4332)
+* [Wayin!](https://github.com/telegraph/clarity-wayin-pipeline/tree/DT-4335)
+* [TCUK!](https://github.com/telegraph/clarity-tcuk-pipeline/tree/DT-4345)
+* [NewsApp!](https://github.com/telegraph/clarity-newsapp-pipeline/tree/DT-4375)
+* [Twipe!](https://github.com/telegraph/clarity-twipe-pipeline)
+* [AppleNews!](https://github.com/telegraph/clarity-applenews-pipeline/tree/DT-4374)
+* [Video Youtube!](https://github.com/telegraph/clarity-youtube-pipeline/tree/DT-4336)
+* [Dim Sprk Urls!](https://github.com/telegraph/clarity-dim-spark-campaigns-urls-pipeline/tree/DT-4359)
 
