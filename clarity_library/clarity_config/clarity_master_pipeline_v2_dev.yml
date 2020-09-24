@@ -1,0 +1,477 @@
+####################################
+#   STEP 1    #
+######## dbtRunner config ##########
+####################################
+
+dbt:
+  repositories:
+    dim-spark-campaign: git@github.com:telegraph/clarity-dim-spark-campaigns-pipeline
+    dim-spark-campaigns-urls: git@github.com:telegraph/clarity-dim-spark-campaigns-urls-pipeline.git
+    dfp: git@github.com:telegraph/clarity-dfp-pipeline.git
+    ooyala-youtube: git@github.com:telegraph/clarity-ooyala-youtube-pipeline.git
+    video-teads: git@github.com:telegraph/clarity-teads-pipeline.git
+    competition-formstack: git@github.com:telegraph/clarity-formstack-pipeline.git
+    competition-wayin: git@github.com:telegraph/clarity-wayin-pipeline.git
+    competition-allplatforms: git@github.com:telegraph/clarity-competition-allplatforms-pipeline.git
+    video-youtube: git@github.com:telegraph/clarity-youtube-pipeline.git
+    video-allplatforms: git@github.com:telegraph/clarity-video-allplatforms-pipeline.git
+    tcuk: git@github.com:telegraph/clarity-tcuk-pipeline.git
+    article-tcuk: git@github.com:telegraph/clarity-article-tcuk-pipeline.git
+    newsapp: git@github.com:telegraph/clarity-newsapp-pipeline.git
+    article-newsapp: git@github.com:telegraph/clarity-article-newsapp-pipeline.git
+    applenews: git@github.com:telegraph/clarity-applenews-pipeline.git
+    article-applenews: git@github.com:telegraph/clarity-article-applenews-pipeline.git
+    article-allplatforms: git@github.com:telegraph/clarity-article-allplatforms-pipeline.git
+    twipe: git@github.com:telegraph/clarity-twipe-pipeline.git
+    article-twipe: git@github.com:telegraph/clarity-article-twipe-pipeline.git
+  profile: "gs://clarity-configs/clarity-dbt-profiles.yml"
+  image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
+  environment: dev
+
+pipelines:
+  dim-spark-campaigns:
+    type: DBT
+    git_repository: dim-spark-campaign
+    git_branch: DT-4316
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - dfp
+      - ooyala-youtube
+      - video-teads
+      - competition-formstack
+      - competition-wayin
+      - video-youtube
+      - tcuk
+
+  dim-spark-campaigns-urls:
+    type: DBT
+    git_repository: dim-spark-campaigns-urls
+    git_branch: DT-4359
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - newsapp
+      - applenews
+      - article-tcuk
+      - twipe
+
+  dfp:
+    type: DBT
+    git_repository: dfp
+    git_branch: DT-4323
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+  ooyala-youtube:
+    type: DBT
+    git_repository: ooyala-youtube
+    git_branch: DT-4325
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - video-allplatforms
+
+  video-teads:
+    type: DBT
+    git_repository: video-teads
+    git_branch: DT-4329
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - video-allplatforms
+
+  competition-formstack:
+    type: DBT
+    git_repository: competition-formstack
+    git_branch: DT-4332
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - competition-allplatforms
+
+  competition-wayin:
+    type: DBT
+    git_repository: competition-wayin
+    git_branch: DT-4335
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - competition-allplatforms
+
+  video-youtube:
+    type: DBT
+    git_repository: video-youtube
+    git_branch: DT-4336
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - video-allplatforms
+
+  video-allplatforms:
+    type: DBT
+    git_repository: video-allplatforms
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+  tcuk:
+    type: DBT
+    git_repository: tcuk
+    git_branch: DT-4345
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - dim-spark-campaigns-urls
+
+  article-tcuk:
+    type: DBT
+    git_repository: article-tcuk
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
+  competition-allplatforms:
+    type: DBT
+    git_repository: competition-allplatforms
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+  newsapp:
+    type: DBT
+    git_repository: newsapp
+    git_branch: DT-4375
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-newsapp
+
+  article-newsapp:
+    type: DBT
+    git_repository: article-newsapp
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
+  applenews:
+    type: DBT
+    git_repository: applenews
+    git_branch: DT-4374
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-applenews
+
+  article-applenews:
+    type: DBT
+    git_repository: article-applenews
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
+  twipe:
+    type: DBT
+    git_repository: twipe
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-twipe
+
+  article-twipe:
+    type: DBT
+    git_repository: article-twipe
+    git_branch: develop
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+    af_downstreams:
+      - article-allplatforms
+
+  article-allplatforms:
+    type: DBT
+    git_repository: article-allplatforms
+    git_branch: master
+    dbt_vars:
+      materialized: table
+    dbt_tag:
+
+###########################################
+#     STEP 2      #
+##### ClarityPublishJob config part 1 #####
+###########################################
+
+logger:
+  push_to_pubsub: false
+
+project: tmg-plat-dev
+
+pubsub:
+  subscription_name: #sid-consumer
+
+mysql:
+  instance_name: tmg-plat-dev:europe-west1:clarity-test
+  database: clarity
+  tmp_mysql_schema:
+  host: sqlproxy-service-clarity-dev #'192.158.29.106' #sqlproxy-service-clarity-dev
+  user: root
+  password: root
+
+bq:
+  dataset: clairty_publishdata_test
+  sanity_check_dataset: clairty_publishdata_test
+  sanity_check_table: publishJob_status
+  delta_dataset: sid_transfer_deltas
+
+gcs:
+  bucket: clarity-configs
+  file_ending: .csv
+
+transfers:
+  dim-spark-campaigns:
+    transfer:
+      method: truncate
+      load_data_infile: load_dim_spark_campaigns.sql
+    bq_table: dim_spark_campaigns
+    mysql_table: dim_spark_campaigns
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-hub-dfp:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_hub_dfp.sql
+    bq_table: addelivery_hub_dfp
+    mysql_table: addelivery_hub_dfp
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-ros-dfp:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_ros_dfp.sql
+    bq_table: addelivery_ros_dfp
+    mysql_table: addelivery_ros_dfp
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-ros-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_ros_allplatforms.sql
+    bq_table: addelivery_ros_allplatforms
+    mysql_table: addelivery_ros_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  addelivery-hub-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_addelivery_hub_allplatforms.sql
+    bq_table: addelivery_hub_allplatforms
+    mysql_table: addelivery_hub_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  ooyala-youtube:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_ooyala_youtube.sql
+    bq_table: video_ooyala_youtube
+    mysql_table: video_ooyala_youtube
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  video-teads:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_teads.sql
+    bq_table: video_teads
+    mysql_table: video_teads
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-formstack:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_formstack.sql
+    bq_table: competition_formstack
+    mysql_table: competition_formstack
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-wayin:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_wayin.sql
+    bq_table: competition_wayin
+    mysql_table: competition_wayin
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  video-youtube:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_youtube.sql
+    bq_table: video_youtube
+    mysql_table: video_youtube
+    table_indexes:
+
+  video-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_video_allplatforms.sql
+    bq_table: video_allplatforms
+    mysql_table: video_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  competition-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_competition_allplatforms.sql
+    bq_table: competition_allplatforms
+    mysql_table: competition_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-applenews:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_applenews.sql
+    bq_table: article_applenews
+    mysql_table: article_applenews
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-newsapp:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_liveapp.sql
+    bq_table: article_liveapp
+    mysql_table: article_liveapp
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-tcuk:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_onsite.sql
+    bq_table: article_onsite
+    mysql_table: article_onsite
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-twipe:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_editions.sql
+    bq_table: article_editions
+    mysql_table: article_editions
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+
+  article-allplatforms:
+    transfer:
+      method: truncate
+      load_data_infile: load_article_allplatforms.sql
+    bq_table: article_allplatforms
+    mysql_table: article_allplatforms
+    table_indexes:
+      - name: campaign_index
+        columns: campaign
+###########################################
+#     STEP 3     #
+##### ClarityPublishJob config part 2 #####
+###########################################
+
+publisher:
+  image: claritypublisherjob
+  version: 1.0.17
+  configuration_file: gs://clarity-configs/clarity_master_pipeline_v2.yml
+  google_app_credentials: "/google-keys/dev-pipeline.json"
+
+  pipelines:
+    dim-spark-campaigns:
+      - transfer_name: dim-spark-campaigns
+
+    dfp:
+      - transfer_name: addelivery-ros-dfp
+        af_downstreams: addelivery-ros-allplatforms
+      - transfer_name: addelivery-hub-dfp
+        af_downstreams: addelivery-hub-allplatforms
+
+    ooyala-youtube:
+      - transfer_name: ooyala-youtube
+
+    video-teads:
+      - transfer_name: video-teads
+
+    competition-formstack:
+      - transfer_name: competition-formstack
+
+    competition-wayin:
+      - transfer_name: competition-wayin
+
+    video-youtube:
+      - transfer_name: video-youtube
+
+    video-allplatforms:
+      - transfer_name: video-allplatforms
+
+    competition-allplatforms:
+      - transfer_name: competition-allplatforms
+
+    article-applenews:
+      - transfer_name: article-applenews
+
+    article-newsapp:
+      - transfer_name: article-newsapp
+
+    article-tcuk:
+      - transfer_name: article-tcuk
+
+    article-allplatforms:
+      - transfer_name: article-allplatforms
+
+    article-twipe:
+      - transfer_name: article-twipe

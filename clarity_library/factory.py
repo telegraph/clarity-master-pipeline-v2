@@ -1,4 +1,5 @@
 from airflow.operators.tmg_kubernetes import TMGKubernetesPodOperator
+from airflow import models
 
 
 class PipelineType:
@@ -28,7 +29,7 @@ DEFAULT_KUBERNETES_AFFINITY = {
                     # The label key"s value that pods can be scheduled
                     # on.
                     "values": [
-                        "tmg-etl-dev"
+                        models.Variable.get('node_pool')
                     ]
                 }]
             }]
@@ -52,7 +53,8 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
     docker_cmd = f"--vars \"{{ {dbt_str_vars} }}\""
 
     if pipeline_configuration.dbt_tag:
-        docker_cmd += " --models tag:{tag} ".format(tag=pipeline_configuration.dbt_tag)
+        docker_cmd += " --models tag:{tag} ".format(
+            tag=pipeline_configuration.dbt_tag)
 
     if pipeline_configuration.dbt_target:
         docker_cmd += ' --target {}'.format(pipeline_configuration.dbt_target)

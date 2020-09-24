@@ -1,5 +1,5 @@
 default:
-  target: dev
+  target: prod
   outputs:
     dev:
       type: bigquery
@@ -7,5 +7,14 @@ default:
       project: tmg-plat-dev
       dataset: clairty_publishdata_test
       threads: 8
+      keyfile: /google-keys/dev-pipeline.json
+      timeout_seconds: 300
+    prod:
+      type: bigquery
+      method: service-account
+      project: tmg-reporting
+      dataset: spark_clarity
+      threads: 8
+      location: EU
       keyfile: /google-keys/dev-pipeline.json
       timeout_seconds: 300

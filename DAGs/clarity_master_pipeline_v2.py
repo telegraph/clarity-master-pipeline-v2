@@ -15,26 +15,27 @@ from clarity_library.utilities import email_notifier
 MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SCHEDULED_INTERVAL = None #timedelta(days=1)
-START_DATE = datetime(2020, 3, 26)
+SCHEDULED_INTERVAL = '30 6 * * *'
+START_DATE = datetime(2020, 9, 20)
 DEPEND_ON_PAST = False
 CATCHUP = False
 
-CONFIG_FILE_NAME = "clarity_master_pipeline_v2.yml"
+CONFIG_FILE_NAME = "clarity_master_pipeline_v2_{}.yml".format(
+    models.Variable.get('env'))
 
-'''notifier = email_notifier(
-    models.Variable.get('SID_ALERT_SENDER_NAME'),
-    models.Variable.get('SID_ALERT_SENDER_EMAIL'),
-    models.Variable.get('SID_ALERT_RECIPIENTS'),
+notifier = email_notifier(
+    'Airflow Failure Alert',
+    models.Variable.get('EMAIL_ALERT_SENDER'),
+    models.Variable.get('EMAIL_ALERT_RECIP'),
     models.Variable.get('MJ_API_KEY_PUBLIC'),
     models.Variable.get('MJ_API_KEY_SECRET')
-)'''
+)
 
 
 class RuntimeConfig:
     DATE_FORMAT_SHORT = "%Y%m%d"
 
-    EXECUTION_DATE = "{{ yesterday_ds_nodash }}"
+    EXECUTION_DATE = "{{ ds_nodash }}"
 
     DOCKER_REGISTRY = "eu.gcr.io/tmg-datalake/"
     CONFIG_DIR = "clarity-config"
@@ -52,7 +53,7 @@ dag_args = {
         "retry_delay": timedelta(minutes=5),
         "project_id": models.Variable.get("gcp_project"),
         'wait_for_downstream': True
-        #"on_failure_callback": notifier
+        # "on_failure_callback": notifier
     },
     "catchup": CATCHUP
 }
@@ -74,7 +75,6 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
     upstream_list = {}
     downstream_list = {}
 
-
     for pipeline in dbt_pipeline_configuration.pipelines_configurations:
         clarity_task = factory.factory_dbt_task(pipeline, RuntimeConfig)
         task_list[pipeline.name] = clarity_task
@@ -83,14 +83,13 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
         if pipeline.downstreams:
             downstream_list[clarity_task.task_id] = pipeline.downstreams
 
-        #linking publish tasks to pipeline tasks
+        # linking publish tasks to pipeline tasks
         for pipeline_name, publisher_jobs in publisher_config.job_list.items():
 
             matching_publish_tasks = []
             if pipeline.name == pipeline_name:
 
                 for publisher_job in publisher_jobs:
-                    
 
                     job_arguments = [
                         RuntimeConfig.EXECUTION_DATE,
@@ -100,35 +99,38 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
                     ]
 
                     clarity_publisher_task = factory.factory_publisher_job(
-                        task_id='{}-mysql-publisher-job'.format(publisher_job.transfer_name),
-                         publisher_config=publisher_config,
-                            job_arguments=job_arguments
-                            )
+                        task_id='{}-mysql-publisher-job'.format(
+                            publisher_job.transfer_name),
+                        publisher_config=publisher_config,
+                        job_arguments=job_arguments
+                    )
                     clarity_publisher_task.trigger_rule = TriggerRule.ALL_SUCCESS
 
                     matching_publish_tasks.append(clarity_publisher_task)
-                    
+
                     # adding publish tasks that are downstream of other publish taskds
                     if publisher_job.downstreams:
 
-                        # changing the transfer name to the downstream task name 
+                        # changing the transfer name to the downstream task name
                         job_arguments[1] = publisher_job.downstreams
 
                         clarity_publisher_task_ds = factory.factory_publisher_job(
-                        task_id='{}-mysql-publisher-job'.format(publisher_job.downstreams),
-                         publisher_config=publisher_config,
+                            task_id='{}-mysql-publisher-job'.format(
+                                publisher_job.downstreams),
+                            publisher_config=publisher_config,
                             job_arguments=job_arguments)
 
                         clarity_publisher_task_ds.trigger_rule = TriggerRule.ALL_SUCCESS
-                        clarity_publisher_task.set_downstream(clarity_publisher_task_ds)
-                    
+                        clarity_publisher_task.set_downstream(
+                            clarity_publisher_task_ds)
+
             clarity_task.set_downstream(matching_publish_tasks)
 
     for clarity_task_name, downstreams in downstream_list.items():
-        clarity_task = task_list[clarity_task_name] 
-        clarity_task.set_downstream([task_list[pipeline_name] for pipeline_name in downstreams])
+        clarity_task = task_list[clarity_task_name]
+        clarity_task.set_downstream(
+            [task_list[pipeline_name] for pipeline_name in downstreams])
         clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
-
 
 
 '''
