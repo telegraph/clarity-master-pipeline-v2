@@ -5,7 +5,7 @@ Repository for Clarity v2 deployment to Airflow
 Clarity is a dashboard that houses advertising related data and metrics that we offer to our advertising clients so they can keep track on how their ads are performing on our media platforms. It currently collects and aggregates data from Telegraph.co.uk, Edions App, News App, Apple News and various video hosting platforms. This project contains the logic that runs clarity back end data pipelines.
 The DAG is designed read a yml file and automatically pick up new tasks (pipelines) to run. 
 
-! [DAG](/clarity_v2_dag.png?raw=true)
+[![clarity-v2-dag.png](https://i.postimg.cc/1RJTp8n2/clarity-v2-dag.png)](https://postimg.cc/QVK0DxqJ)
 
 ## Project Structure 
 The project is separated into three main sections 
