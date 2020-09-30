@@ -75,6 +75,7 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
         wait_for_downstream=pipeline_configuration.wait_for_downstream,
         get_logs=True,
         env_vars=env_vars,
+        image_pull_policy='Always',
         affinity=DEFAULT_KUBERNETES_AFFINITY,
         is_delete_operator_pod=True,
         **kwargs

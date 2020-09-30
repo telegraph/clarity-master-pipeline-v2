@@ -16,9 +16,9 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = '30 6 * * *'
-START_DATE = datetime(2020, 9, 20)
-DEPEND_ON_PAST = False
-CATCHUP = False
+START_DATE = datetime(2020, 9, 29)
+DEPEND_ON_PAST = True
+CATCHUP = True
 
 CONFIG_FILE_NAME = "clarity_master_pipeline_v2_{}.yml".format(
     models.Variable.get('env'))
