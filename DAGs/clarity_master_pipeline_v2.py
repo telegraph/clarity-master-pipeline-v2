@@ -15,8 +15,8 @@ from clarity_library.utilities import email_notifier
 MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SCHEDULED_INTERVAL = '30 6 * * *'
-START_DATE = datetime(2020, 9, 29)
+SCHEDULED_INTERVAL = '30 7 * * *'
+START_DATE = datetime(2020, 10, 23)
 DEPEND_ON_PAST = True
 CATCHUP = True
 
@@ -52,10 +52,11 @@ dag_args = {
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
         "project_id": models.Variable.get("gcp_project"),
-        'wait_for_downstream': True
+        'wait_for_downstream': False
         # "on_failure_callback": notifier
     },
-    "catchup": CATCHUP
+    "catchup": CATCHUP,
+    'max_active_runs': 1
 }
 
 
@@ -131,21 +132,3 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
         clarity_task.set_downstream(
             [task_list[pipeline_name] for pipeline_name in downstreams])
         clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
-
-
-'''
-        if pipeline.upstreams:
-            upstream_list[clarity_task.task_id] = pipeline.upstreams
-        if pipeline.downstreams:
-            downstream_list[clarity_task.task_id] = pipeline.downstreams
-
-    for clarity_task_name, upstreams in upstream_list.items():
-        clarity_task = task_list[clarity_task_name]
-        clarity_task.set_upstream([task_list[pipeline_name] for pipeline_name in upstreams])
-        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
-
-    for clarity_task_name, downstreams in downstream_list.items():
-        clarity_task = task_list[clarity_task_name]
-        clarity_task.set_downstream([task_list[pipeline_name] for pipeline_name in downstreams])
-        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
-'''
