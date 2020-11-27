@@ -16,7 +16,7 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = '30 7 * * *'
-START_DATE = datetime(2020, 10, 23)
+START_DATE = datetime(2020, 10, 8)
 DEPEND_ON_PAST = True
 CATCHUP = True
 
