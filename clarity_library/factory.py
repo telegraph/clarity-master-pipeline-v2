@@ -1,5 +1,6 @@
-from airflow.operators.tmg_kubernetes import TMGKubernetesPodOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow import models
+from airflow.kubernetes.secret import Secret
 
 
 class PipelineType:
@@ -38,7 +39,7 @@ DEFAULT_KUBERNETES_AFFINITY = {
 }
 
 
-def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
+def factory_dbt_task(pipeline_configuration, runtime_configuration):
     """
     Factory method to create dbt tasks using KubernetesPodOperator
     """
@@ -47,7 +48,7 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
 
     dbt_vars = {'execution_date': runtime_configuration.EXECUTION_DATE}
     dbt_vars.update(pipeline_configuration.dbt_vars)
-    dbt_vars.update(kwargs)
+    # dbt_vars.update(kwargs)
     dbt_str_vars = ', '.join([f'{k}: {v}' for k, v in dbt_vars.items()])
 
     docker_cmd = f"--vars \"{{ {dbt_str_vars} }}\""
@@ -59,26 +60,25 @@ def factory_dbt_task(pipeline_configuration, runtime_configuration, **kwargs):
     if pipeline_configuration.dbt_target:
         docker_cmd += ' --target {}'.format(pipeline_configuration.dbt_target)
 
-    env_vars = {
+    env_vars_2 = {
         'REPOSITORY': pipeline_configuration.git_repository,
-        'PROFILE': pipeline_configuration.dbt_profile.format(**kwargs),
+        'PROFILE': pipeline_configuration.dbt_profile,
         'CMD': docker_cmd,
         'BRANCH': pipeline_configuration.git_branch,
         'ENVIRONMENT': pipeline_configuration.dbt_environment
     }
 
-    return TMGKubernetesPodOperator(
+    return KubernetesPodOperator(
         task_id=task_id,
         name=task_id,
         namespace="default",
         image=image,
         wait_for_downstream=pipeline_configuration.wait_for_downstream,
         get_logs=True,
-        env_vars=env_vars,
+        env_vars=env_vars_2,
         image_pull_policy='Always',
         affinity=DEFAULT_KUBERNETES_AFFINITY,
-        is_delete_operator_pod=True,
-        **kwargs
+        is_delete_operator_pod=True
     )
 
 
@@ -91,13 +91,16 @@ def factory_publisher_job(task_id, publisher_config, job_arguments):
     """
     task_config = publisher_config.task_configuration
 
-    image_name = "eu.gcr.io/tmg-datalake/{}:{}".format(
+    image_name = "eu.gcr.io/tmg-data-prod/{}:{}".format(
         task_config['image_name'], task_config["version"])
     pod_arguments = ["clarityPublisherJob"] + job_arguments
 
     kubernetes_friendly_pod_name = task_id.replace("_", "-")
 
-    return TMGKubernetesPodOperator(
+    secret = Secret('env', 'GOOGLE_APPLICATION_CREDENTIALS',
+                    'clarity-publisherjob-credentials', 'service_account_path')
+
+    return KubernetesPodOperator(
         task_id=task_id,
         name=kubernetes_friendly_pod_name,
         namespace="default",
@@ -105,8 +108,10 @@ def factory_publisher_job(task_id, publisher_config, job_arguments):
         get_logs=True,
         cmds=pod_arguments,
         arguments={},
+        image_pull_policy='Always',
         affinity=DEFAULT_KUBERNETES_AFFINITY,
         is_delete_operator_pod=True,
-        env_vars={'GOOGLE_APPLICATION_CREDENTIALS':
-                  publisher_config.google_app_credentials}
+        # env_vars={'GOOGLE_APPLICATION_CREDENTIALS':
+                  # publisher_config.google_app_credentials.rstrip()},
+        secrets=[secret]
     )

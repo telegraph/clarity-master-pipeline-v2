@@ -41,7 +41,8 @@ class ETL(TMGETL):
         project_id = application_configuration['project']
 
         self._logger = Logger(APP_NAME, __name__, google_project_id=project_id)
-        self.app_config = ApplicationConfig(application_configuration, self._logger)
+        self.app_config = ApplicationConfig(
+            application_configuration, self._logger)
 
         self._logger.push_to_pubsub = self.app_config.push_logger_to_pubsub
 
@@ -103,12 +104,13 @@ class ETL(TMGETL):
                 f'Data is available, but tables rows count are not matching: mysql - bigquery: {discrepancy}')
 
     def download_config(self, config_location):
-
+        config_location = config_location.rstrip()
         if 'gs' == config_location[:2]:
             try:
                 bucket, file = config_location.replace('gs://', '').split('/')
             except ValueError:
-                raise RuntimeError('Config Location must be of form "bucket/file"')
+                raise RuntimeError(
+                    'Config Location must be of form "bucket/file"')
             storage_client = storage.Client()
             bucket = storage_client.get_bucket(bucket)
             file = bucket.blob(file)

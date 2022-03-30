@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import os
 
 from airflow import models
-from airflow.operators.sensors import ExternalTaskSensor
 from airflow.utils.trigger_rule import TriggerRule
 
 import clarity_library.factory as factory
@@ -16,8 +15,8 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = '30 7 * * *'
-START_DATE = datetime(2020, 10, 8)
-DEPEND_ON_PAST = True
+START_DATE = datetime(2022, 3, 27)
+DEPEND_ON_PAST = False
 CATCHUP = True
 
 CONFIG_FILE_NAME = "clarity_master_pipeline_v2_{}.yml".format(
@@ -25,10 +24,10 @@ CONFIG_FILE_NAME = "clarity_master_pipeline_v2_{}.yml".format(
 
 notifier = email_notifier(
     'Airflow Failure Alert',
-    models.Variable.get('EMAIL_ALERT_SENDER'),
-    models.Variable.get('EMAIL_ALERT_RECIP'),
-    models.Variable.get('MJ_API_KEY_PUBLIC'),
-    models.Variable.get('MJ_API_KEY_SECRET')
+    models.Variable.get('email_alert_sender'),
+    models.Variable.get('email_alert_recip'),
+    models.Variable.get('mj_api_key_public'),
+    models.Variable.get('mj_api_key_secret')
 )
 
 

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-sql-proxy-clarity-prod
+  labels:
+    app: cloud-sql-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloud-sql-proxy
+  template:
+    metadata:
+      labels:
+        app: cloud-sql-proxy
+    spec:
+      containers:
+        - image: gcr.io/cloudsql-docker/gce-proxy:1.16
+          imagePullPolicy: IfNotPresent
+          name: clarity-cloud-sql-proxy
+          resources:
+            requests:
+              cpu: 100m
+          command:
+            - /cloud_sql_proxy
+            - -dir=/cloudsql
+            - -instances=tmg-reporting:europe-west1:spark-clarity=tcp:0.0.0.0:3306
+            - -credential_file=/credentials/clarity-publishdata-v2.json
+          ports:
+            - name: port-clarity
+              containerPort: 3306
+          volumeMounts:
+            - mountPath: /cloudsql
+              name: cloudsql
+            - mountPath: /credentials
+              name: clarity-cloudsql-credentials
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-nodepool
+                    operator: In
+                    values:
+                      - tmg-etl-prod
+
+      volumes:
+        - name: cloudsql
+          emptyDir:
+        - name: clarity-cloudsql-credentials
+          secret:
+            secretName: clarity-cloudsql-credentials
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlproxy-service-clarity-prod
+spec:
+  ports:
+    - port: 3306
+      targetPort: port-clarity
+  selector:
+    app: cloud-sql-proxy

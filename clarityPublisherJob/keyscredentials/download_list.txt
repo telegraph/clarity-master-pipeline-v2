@@ -1,2 +1,3 @@
 dev-pipeline.json
+clarity-publishdata-v2.json
 sid-production-tmg-datalake.json

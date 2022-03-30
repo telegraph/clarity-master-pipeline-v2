@@ -24,8 +24,8 @@ dbt:
     article-allplatforms: git@github.com:telegraph/clarity-article-allplatforms-pipeline.git
     twipe: git@github.com:telegraph/clarity-twipe-pipeline.git
     article-twipe: git@github.com:telegraph/clarity-article-twipe-pipeline.git
-  profile: "gs://clarity-configs-prod/clarity-dbt-profiles.yml"
-  image: "eu.gcr.io/tmg-datalake/sid-dbt-runtime:1.0.0"
+  profile: "gs://clarity-configs-prod-2/clarity-dbt-profiles.yml "
+  image: eu.gcr.io/tmg-data-prod/sid-dbt-runtime:1.0.0
   environment: prod
 
 pipelines:
@@ -248,7 +248,7 @@ bq:
   delta_dataset: sid_transfer_deltas
 
 gcs:
-  bucket: clarity-configs-prod
+  bucket: clarity-configs-prod-2
   file_ending: .csv
 
 transfers:
@@ -427,8 +427,8 @@ transfers:
 publisher:
   image: claritypublisherjob
   version: 1.0.17
-  configuration_file: gs://clarity-configs-prod/clarity_master_pipeline_v2_prod.yml
-  google_app_credentials: "/google-keys/sid-production-tmg-datalake.json"
+  configuration_file: "gs://clarity-configs-prod-2/clarity_master_pipeline_v2_prod.yml "
+  google_app_credentials: "/google-keys/sid-production-tmg-datalake.json "
 
   pipelines:
     dim-spark-campaigns:
