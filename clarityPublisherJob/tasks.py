@@ -22,8 +22,8 @@ DEPLOYMENT_TAG = get_command_stdout(
 ).replace("'", "")
 
 
-DEV_DOCKER_PROJECT = "tmg-plat-dev"
-PROD_DOCKER_PROJECT = "tmg-datalake"
+DEV_DOCKER_PROJECT = "tmg-data-preprod"
+PROD_DOCKER_PROJECT = "tmg-data-prod"
 
 docker_image_name = 'eu.gcr.io/{0}/{1}:{2}'.format(PROD_DOCKER_PROJECT, PROJECT_NAME, DEPLOYMENT_TAG).lower()
 
