@@ -5,7 +5,7 @@ FIELDS
 	TERMINATED BY '\t'
 	ESCAPED BY '\"'
 IGNORE 1 LINES
-(@field_1, @field_2, @field_3, @field_4, @field_5, @field_6, @field_7, @field_8, @field_9, @field_10, @field_11, @field_12, @field_13, @field_14, @field_15)
+(@field_1, @field_2, @field_3, @field_4, @field_5, @field_6, @field_7, @field_8, @field_9, @field_10, @field_11, @field_12, @field_13, @field_14, @field_15, @field_16, @field_17, @field_18, @field_19, @field_20)
 SET
 `date` = IF(@field_1 = '', NOT NULL, @field_1),
 campaign = IF(@field_2 = '', NOT NULL, @field_2),
@@ -21,4 +21,9 @@ mpu_impressions = IF(@field_11 = '', NOT NULL, @field_11),
 sky_impressions = IF(@field_12 = '', NOT NULL, @field_12),
 interstitial_impressions = IF(@field_13 = '', NOT NULL, @field_13),
 mobile_native_impressions = IF(@field_14 = '', NOT NULL, @field_14),
-reskin_impressions = IF(@field_15 = '', NOT NULL, @field_15);
+reskin_impressions = IF(@field_15 = '', NOT NULL, @field_15),
+ad_name = IF(@field_16 = '', NOT NULL, @field_16),
+creative_size_map = IF(@field_17 = '', NOT NULL, @field_17),
+device_category_name = IF(@field_18 = '', NOT NULL, @field_18),
+line_item_start_date_time = IF(@field_19 = '', NOT NULL, @field_19),
+line_item_end_date_time = IF(@field_20 = '', NOT NULL, @field_20);

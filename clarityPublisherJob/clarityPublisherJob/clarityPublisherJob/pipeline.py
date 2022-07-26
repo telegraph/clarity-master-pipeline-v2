@@ -28,7 +28,7 @@ def run(execution_date, transfer_name, config_location, full_refresh):
     etl = ETL(
         execution_date,
         transfer_name,
-        config_location,
+        config_location.strip(),
         full_refresh
     )
 
