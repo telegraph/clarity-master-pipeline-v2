@@ -16,6 +16,7 @@ MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCHEDULED_INTERVAL = '30 7 * * *'
+SCHEDULED_INTERVAL_DFP_2 = '15 11 * * *'
 START_DATE = datetime(2020, 10, 8)
 DEPEND_ON_PAST = True
 CATCHUP = True
@@ -83,6 +84,13 @@ with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
 
         if pipeline.downstreams:
             downstream_list[clarity_task.task_id] = pipeline.downstreams
+
+        if pipeline.name == 'dfp':
+            # Create an additional task with a different schedule interval
+            clarity_task_dfp_2 = factory.factory_dbt_task(pipeline, RuntimeConfig)
+            clarity_task_dfp_2.trigger_rule = TriggerRule.ALL_SUCCESS
+            clarity_task_dfp_2.schedule_interval = SCHEDULED_INTERVAL_DFP_2
+            task_list['{}_dfp_2'.format(pipeline.name)] = clarity_task_dfp_2
 
         # linking publish tasks to pipeline tasks
         for pipeline_name, publisher_jobs in publisher_config.job_list.items():

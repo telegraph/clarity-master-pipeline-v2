@@ -1,0 +1,95 @@
+default_args:
+  catchup: false
+  delay: 2
+  retries: 3
+  schedule_interval: 0 7 30 * *
+  starting_date: '20230215'
+
+pipelines:
+  dim-spark-campaigns:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
+      tag: 1.0.0
+
+  dim-spark-campaigns-urls:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
+      tag: 1.0.0
+
+  dfp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
+      tag: 1.0.0
+
+  competition-formstack:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  video-youtube:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  tcuk:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  article-tcuk:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  competition-allplatforms:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  applenews:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  article-applenews:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0
+
+  article-allplatforms:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      tag: 1.0.0

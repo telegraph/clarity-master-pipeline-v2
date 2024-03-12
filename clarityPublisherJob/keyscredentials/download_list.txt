@@ -1,2 +1,0 @@
-dev-pipeline.json
-sid-production-tmg-datalake.json
