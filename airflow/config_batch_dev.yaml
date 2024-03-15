@@ -2,7 +2,7 @@ default_args:
   catchup: false
   delay: 2
   retries: 3
-  schedule_interval: 0 7 30 * *
+  schedule_interval: 30 7 * * *
   starting_date: '20230215'
 
 pipelines:
@@ -12,7 +12,7 @@ pipelines:
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      tag: 3afaec69920be64706b1a34ed6b56317e925b3f8
 
   dim-spark-campaigns-urls:
     args:
@@ -20,7 +20,7 @@ pipelines:
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      tag: fcde1ac985c46ba64ccdf7788a674aed62babc99
 
   dfp:
     args:
@@ -28,31 +28,31 @@ pipelines:
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      tag: fe7d6bae46edca4e78b74bbe16bb612e45b3a6db
 
   competition-formstack:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      image: eu.gcr.io/tmg-data-preprod/clarity-formstack-pipeline
+      tag: dd40146064021f35c95da0acc54ff521b04f25f4
 
   video-youtube:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      image: eu.gcr.io/tmg-data-preprod/clarity-youtube-pipeline
+      tag: fce1be9fb6ee76cd51b228b8429aef5c4ed3cc77
 
   tcuk:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      image: eu.gcr.io/tmg-data-preprod/clarity-tcuk-pipeline
+      tag: 4d6b719bde1c28e441c4c9e429372d363285338e
 
   article-tcuk:
     args:
@@ -60,15 +60,7 @@ pipelines:
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
       image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
-
-  competition-allplatforms:
-    args:
-      - execution_date: "{{ ds_nodash }}"
-      - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      tag: 99bc882a61fe275f62290f3ea9be4a4b026490ad
 
   applenews:
     args:
@@ -83,13 +75,21 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      image: eu.gcr.io/tmg-data-preprod/clarity-article-applenews-pipeline
+      tag: b6d3b650894c1ea24a371b8bf8b36edad0242dd7
 
-  article-allplatforms:
+  liveapp:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+      image: eu.gcr.io/tmg-data-preprod/clarity-appdata-pipeline
+      tag: 00be694b05e62d14e0c654e1aa220bb3e8f6090e
+
+  editionapp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-preprod/clarity-edition-app-pipeline-dbt
+      tag: 65e423c833e26ec646e529e827c39b378655cc99

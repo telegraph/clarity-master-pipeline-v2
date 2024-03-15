@@ -2,7 +2,7 @@ default_args:
   catchup: false
   delay: 2
   retries: 3
-  schedule_interval: 0 7 30 * *
+  schedule_interval: 30 7 * * *
   starting_date: '20230215'
 
 pipelines:
@@ -11,7 +11,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-pipeline
       tag: 1.0.0
 
   dim-spark-campaigns-urls:
@@ -19,7 +19,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-urls-pipeline
       tag: 1.0.0
 
   dfp:
@@ -27,7 +27,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-dfp-pipeline
       tag: 1.0.0
 
   competition-formstack:
@@ -35,7 +35,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-formstack-pipeline
       tag: 1.0.0
 
   video-youtube:
@@ -43,7 +43,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-youtube-pipeline
       tag: 1.0.0
 
   tcuk:
@@ -51,7 +51,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-tcuk-pipeline
       tag: 1.0.0
 
   article-tcuk:
@@ -59,15 +59,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: 1.0.0
-
-  competition-allplatforms:
-    args:
-      - execution_date: "{{ ds_nodash }}"
-      - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/up-source-pipeline
       tag: 1.0.0
 
   applenews:
@@ -75,7 +67,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/up-source-pipeline
       tag: 1.0.0
 
   article-applenews:
@@ -83,13 +75,21 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+      image: eu.gcr.io/tmg-data-prod/clarity-article-applenews-pipeline
       tag: 1.0.0
 
-  article-allplatforms:
+  liveapp:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
       - mode: batch
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: 1.0.0
+      image: eu.gcr.io/tmg-data-prod/clarity-appdata-pipeline
+      tag: 1.2.7
+
+  editionapp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+      - mode: batch
+      image: eu.gcr.io/tmg-data-prod/clarity-edition-app-pipeline-dbt
+      tag: 2.1
