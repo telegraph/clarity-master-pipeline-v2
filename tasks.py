@@ -52,7 +52,7 @@ def upload_airflow_dag(ctx, env):
 
 
 @task()
-def deploy_airflow(ctx, env, mode):
+def deploy_airflow(ctx, env):
 
-    upload_airflow_config_file(ctx, env, mode)
-    upload_airflow_dag(ctx, env, mode)
+    upload_airflow_config_file(ctx, env)
+    upload_airflow_dag(ctx, env)

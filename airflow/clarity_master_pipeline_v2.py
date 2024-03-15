@@ -1,142 +1,123 @@
-"""
-Clarity V2 Master Pipeline DAG
-"""
-from datetime import datetime, timedelta
+import datetime
 import os
+import yaml
 
-from airflow import models
-from airflow.operators.sensors import ExternalTaskSensor
-from airflow.utils.trigger_rule import TriggerRule
+from airflow import models, macros
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from tmg_library.notification import notify
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
-import clarity_library.factory as factory
-import clarity_library.configuration as configuration
-from clarity_library.utilities import email_notifier
-
-MASTER_PIPELINE_NAME = os.path.basename(os.path.splitext(__file__)[0])
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-SCHEDULED_INTERVAL = '30 7 * * *'
-SCHEDULED_INTERVAL_DFP_2 = '15 11 * * *'
-START_DATE = datetime(2020, 10, 8)
-DEPEND_ON_PAST = True
-CATCHUP = True
-
-CONFIG_FILE_NAME = "clarity_master_pipeline_v2_{}.yml".format(
-    models.Variable.get('env'))
-
-notifier = email_notifier(
-    'Airflow Failure Alert',
-    models.Variable.get('EMAIL_ALERT_SENDER'),
-    models.Variable.get('EMAIL_ALERT_RECIP'),
-    models.Variable.get('MJ_API_KEY_PUBLIC'),
-    models.Variable.get('MJ_API_KEY_SECRET')
-)
+PACKAGE_NAME = 'clarity_master_pipeline_v2'
+CURRENT_DIR = "/home/airflow/gcs/dags"
+CONFIG_DIR = "etl_configs/{}".format(PACKAGE_NAME)
+CONFIG_FILE = "config.yaml"
 
 
-class RuntimeConfig:
-    DATE_FORMAT_SHORT = "%Y%m%d"
-
-    EXECUTION_DATE = "{{ ds_nodash }}"
-
-    DOCKER_REGISTRY = "eu.gcr.io/tmg-datalake/"
-    CONFIG_DIR = "clarity-config"
-    #QUERY_DIR = "queries"
+with open(os.path.join(CURRENT_DIR, CONFIG_DIR, CONFIG_FILE)) as config:
+    yaml_loaded = yaml.load(config, Loader=yaml.FullLoader)
+    pipelines = yaml_loaded['pipelines']
+    dag_arguments = yaml_loaded['default_args']
 
 
-dag_args = {
-    "schedule_interval": SCHEDULED_INTERVAL,
-    "default_args": {
-        "start_date": START_DATE,
-        "depends_on_past": DEPEND_ON_PAST,
-        "email_on_failure": False,
-        "email_on_retry": False,
-        "retries": 1,
-        "retry_delay": timedelta(minutes=5),
-        "project_id": models.Variable.get("gcp_project"),
-        'wait_for_downstream': False
-        # "on_failure_callback": notifier
-    },
-    "catchup": CATCHUP,
-    'max_active_runs': 1
+START_DATE = datetime.datetime.strptime(dag_arguments['starting_date'], '%Y%m%d')
+
+
+DEFAULT_KUBERNETES_AFFINITY = {
+    "nodeAffinity": {
+        # requiredDuringSchedulingIgnoredDuringExecution means in order
+        # for a pod to be scheduled on a node, the node must have the
+        # specified labels. However, if labels on a node change at
+        # runtime such that the affinity rules on a pod are no longer
+        # met, the pod will still continue to run on the node.
+        "requiredDuringSchedulingIgnoredDuringExecution": {
+            "nodeSelectorTerms": [{
+                "matchExpressions": [{
+                    # When nodepools are created in Google Kubernetes
+                    # Engine, the nodes inside of that nodepool are
+                    # automatically assigned the label
+                    # "cloud.google.com/gke-nodepool" with the value of
+                    # the nodepool"s name.
+                    "key": "cloud.google.com/gke-nodepool",
+                    "operator": "In",
+                    # The label key"s value that pods can be scheduled
+                    # on.
+                    "values": [
+                        models.Variable.get('node_pool')
+                    ]
+                }]
+            }]
+        }
+    }
 }
 
+default_dag_args = {"start_date": START_DATE,
+                    "email_on_failure": True,
+                    "email_on_retry": False,
+                    "retries": dag_arguments['retries'],
+                    "retry_delay": datetime.timedelta(minutes=dag_arguments['delay']),
+                    "project_id": models.Variable.get("gcp_project"),
+                    "depends_on_past": True}
 
-dbt_pipeline_configuration = configuration.DBTMasterPipelineConfiguration(
-    os.path.join(
-        CURRENT_DIR, RuntimeConfig.CONFIG_DIR, CONFIG_FILE_NAME
-    )
-)
 
+with models.DAG(dag_id=PACKAGE_NAME,
+                default_args=default_dag_args,
+                schedule_interval=dag_arguments['schedule_interval'],
+                catchup=dag_arguments['catchup'],
+                max_active_runs=1) as dag:
 
-publisher_config = configuration.MysqlPublisherJobConfiguration(
-    os.path.join(CURRENT_DIR, RuntimeConfig.CONFIG_DIR, CONFIG_FILE_NAME)
-)
+    operators = {}
+    for pipeline_name, value in pipelines.items():
+        operators[pipeline_name] = KubernetesPodOperator(
+            task_id=pipeline_name,
+            name=pipeline_name,
+            image='{0}:{1}'.format(value['image'], value['tag']),
+            namespace="default",
+            get_logs=True,
+            affinity=DEFAULT_KUBERNETES_AFFINITY,
+            is_delete_operator_pod=True,
+            on_failure_callback=notify,
+        )
 
-with models.DAG(MASTER_PIPELINE_NAME, **dag_args) as clarity_master_dag:
-    task_list = {}
-    upstream_list = {}
-    downstream_list = {}
+        shard_date = "{{ macros.ds_format(macros.ds_add(ds, 1), '%Y-%m-%d', '%Y%m%d') }}"
+        dbt_vars = {}
+        for arg in value['args']:
+            for k, v in arg.items():
+                dbt_vars[k] = v
+        dbt_vars['shard_date'] = shard_date
 
-    for pipeline in dbt_pipeline_configuration.pipelines_configurations:
-        clarity_task = factory.factory_dbt_task(pipeline, RuntimeConfig)
-        task_list[pipeline.name] = clarity_task
-        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
+        dbt_str_vars = ', '.join([f"'{k}': '{v}'" for k, v in dbt_vars.items()])
+        cmds = [
+            "dbt", "run",
+            "--vars", "{{ {dbt_str_vars} }}".format(dbt_str_vars=dbt_str_vars),
+            "--target", "{}".format(models.Variable.get('env')),
+            "--profiles-dir", "."
+        ]
 
-        if pipeline.downstreams:
-            downstream_list[clarity_task.task_id] = pipeline.downstreams
+        extra_cmds = value.get('extra_cmds', None)
+        if extra_cmds:
+            cmds = cmds + extra_cmds
+        operators[pipeline_name].cmds = cmds
 
-        if pipeline.name == 'dfp':
-            # Create an additional task with a different schedule interval
-            clarity_task_dfp_2 = factory.factory_dbt_task(pipeline, RuntimeConfig)
-            clarity_task_dfp_2.trigger_rule = TriggerRule.ALL_SUCCESS
-            clarity_task_dfp_2.schedule_interval = SCHEDULED_INTERVAL_DFP_2
-            task_list['{}_dfp_2'.format(pipeline.name)] = clarity_task_dfp_2
+    dummy = DummyOperator(task_id='start')
 
-        # linking publish tasks to pipeline tasks
-        for pipeline_name, publisher_jobs in publisher_config.job_list.items():
+    dummy >> operators['dim_spark_campaigns']
 
-            matching_publish_tasks = []
-            if pipeline.name == pipeline_name:
+    operators['dim_spark_campaigns'] >> operators['dim_spark_campaigns_urls']
+    operators['dim_spark_campaigns'] >> operators['dfp']
+    operators['dim_spark_campaigns'] >> operators['competition_formstack']
+    operators['dim_spark_campaigns'] >> operators['video_youtube']
+    operators['dim_spark_campaigns'] >> operators['tcuk']
+    operators['dim_spark_campaigns'] >> operators['article_tcuk']
+    operators['dim_spark_campaigns'] >> operators['applenews']
+    operators['dim_spark_campaigns'] >> operators['applenews']
+    operators['dim_spark_campaigns'] >> operators['liveapp']
+    operators['dim_spark_campaigns'] >> operators['editionapp']
 
-                for publisher_job in publisher_jobs:
+    operators['dim_spark_campaigns_urls'] >> operators['applenews']
+    operators['dim_spark_campaigns_urls'] >> operators['liveapp']
+    operators['dim_spark_campaigns_urls'] >> operators['editionapp']
 
-                    job_arguments = [
-                        RuntimeConfig.EXECUTION_DATE,
-                        publisher_job.transfer_name,
-                        publisher_config.configuration_file
+    operators['tcuk'] >> operators['article_tcuk']
+    operators['applenews'] >> operators['applenews']
 
-                    ]
-
-                    clarity_publisher_task = factory.factory_publisher_job(
-                        task_id='{}-mysql-publisher-job'.format(
-                            publisher_job.transfer_name),
-                        publisher_config=publisher_config,
-                        job_arguments=job_arguments
-                    )
-                    clarity_publisher_task.trigger_rule = TriggerRule.ALL_SUCCESS
-
-                    matching_publish_tasks.append(clarity_publisher_task)
-
-                    # adding publish tasks that are downstream of other publish taskds
-                    if publisher_job.downstreams:
-
-                        # changing the transfer name to the downstream task name
-                        job_arguments[1] = publisher_job.downstreams
-
-                        clarity_publisher_task_ds = factory.factory_publisher_job(
-                            task_id='{}-mysql-publisher-job'.format(
-                                publisher_job.downstreams),
-                            publisher_config=publisher_config,
-                            job_arguments=job_arguments)
-
-                        clarity_publisher_task_ds.trigger_rule = TriggerRule.ALL_SUCCESS
-                        clarity_publisher_task.set_downstream(
-                            clarity_publisher_task_ds)
-
-            clarity_task.set_downstream(matching_publish_tasks)
-
-    for clarity_task_name, downstreams in downstream_list.items():
-        clarity_task = task_list[clarity_task_name]
-        clarity_task.set_downstream(
-            [task_list[pipeline_name] for pipeline_name in downstreams])
-        clarity_task.trigger_rule = TriggerRule.ALL_SUCCESS
