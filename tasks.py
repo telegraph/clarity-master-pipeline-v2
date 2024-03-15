@@ -8,7 +8,6 @@ from google.cloud import storage
 pwd = os.getcwd()
 
 PIPELINE_NAME = 'clarity-master-pipeline-v2'
-DAG_NAME_FORMAT = 'clarity_master_pipeline_v2'
 AIRFLOW_DIRECTORY = 'airflow'
 DEV_AIRFLOW_CONFIG_BUCKET = 'europe-west2-dev-airflow-9b1988dd-bucket'
 PROD_AIRFLOW_CONFIG_BUCKET = 'europe-west2-prod-airflow-66feabb0-bucket'
@@ -31,27 +30,25 @@ def update_airflow_config_deployment_tag(ctx, env, deployment_tag):
 
 
 @task()
-def upload_airflow_config_file(ctx, env, mode):
+def upload_airflow_config_file(ctx, env):
 
     config_gs_bucket = PROD_AIRFLOW_CONFIG_BUCKET if env == 'prod' else DEV_AIRFLOW_CONFIG_BUCKET
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(config_gs_bucket)
-    dag_name = DAG_NAME_FORMAT.format(mode)
-    blob = bucket.blob('dags/etl_configs/{}/config.yaml'.format(dag_name))
-    blob.upload_from_filename('{}/{}_{}_{}.yaml'.format(AIRFLOW_DIRECTORY, 'config', mode, env))
+    blob = bucket.blob('dags/etl_configs/{}/config.yaml'.format(PIPELINE_NAME))
+    blob.upload_from_filename('{}/{}_{}.yaml'.format(AIRFLOW_DIRECTORY, 'config', env))
 
 
 @task()
-def upload_airflow_dag(ctx, env, mode):
+def upload_airflow_dag(ctx, env):
 
     config_gs_bucket = PROD_AIRFLOW_CONFIG_BUCKET if env == 'prod' else DEV_AIRFLOW_CONFIG_BUCKET
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(config_gs_bucket)
-    dag_name = DAG_NAME_FORMAT.format(mode)
-    blob = bucket.blob('dags/{}.py'.format(dag_name))
-    blob.upload_from_filename('{}/{}.py'.format(AIRFLOW_DIRECTORY, dag_name))
+    blob = bucket.blob('dags/{}.py'.format(PIPELINE_NAME))
+    blob.upload_from_filename('{}/{}.py'.format(AIRFLOW_DIRECTORY, PIPELINE_NAME))
 
 
 @task()
