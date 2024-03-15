@@ -10,7 +10,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-pipeline
       tag: 1.0.0
 
@@ -18,7 +17,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-urls-pipeline
       tag: 1.0.0
 
@@ -26,7 +24,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-dfp-pipeline
       tag: 1.0.0
 
@@ -34,7 +31,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-formstack-pipeline
       tag: 1.0.0
 
@@ -42,7 +38,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-youtube-pipeline
       tag: 1.0.0
 
@@ -50,7 +45,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-tcuk-pipeline
       tag: 1.0.0
 
@@ -58,7 +52,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/up-source-pipeline
       tag: 1.0.0
 
@@ -66,7 +59,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/up-source-pipeline
       tag: 1.0.0
 
@@ -74,7 +66,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-article-applenews-pipeline
       tag: 1.0.0
 
@@ -82,7 +73,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-appdata-pipeline
       tag: 1.2.7
 
@@ -90,6 +80,5 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-prod/clarity-edition-app-pipeline-dbt
       tag: 2.1

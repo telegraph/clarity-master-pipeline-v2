@@ -10,7 +10,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
       tag: 3afaec69920be64706b1a34ed6b56317e925b3f8
 
@@ -18,7 +17,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
       tag: fcde1ac985c46ba64ccdf7788a674aed62babc99
 
@@ -26,7 +24,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
       tag: fe7d6bae46edca4e78b74bbe16bb612e45b3a6db
 
@@ -34,7 +31,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-formstack-pipeline
       tag: dd40146064021f35c95da0acc54ff521b04f25f4
 
@@ -42,7 +38,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-youtube-pipeline
       tag: fce1be9fb6ee76cd51b228b8429aef5c4ed3cc77
 
@@ -50,7 +45,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-tcuk-pipeline
       tag: 4d6b719bde1c28e441c4c9e429372d363285338e
 
@@ -58,7 +52,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
       tag: 99bc882a61fe275f62290f3ea9be4a4b026490ad
 
@@ -66,7 +59,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
       tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
 
@@ -74,7 +66,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-article-applenews-pipeline
       tag: b6d3b650894c1ea24a371b8bf8b36edad0242dd7
 
@@ -82,7 +73,6 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-appdata-pipeline
       tag: 00be694b05e62d14e0c654e1aa220bb3e8f6090e
 
@@ -90,6 +80,5 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      - mode: batch
       image: eu.gcr.io/tmg-data-preprod/clarity-edition-app-pipeline-dbt
       tag: 65e423c833e26ec646e529e827c39b378655cc99
