@@ -8,6 +8,7 @@ from google.cloud import storage
 pwd = os.getcwd()
 
 PIPELINE_NAME = 'clarity-master-pipeline-v2'
+DAG_NAME = 'clarity_master_pipeline_v2'
 AIRFLOW_DIRECTORY = 'airflow'
 DEV_AIRFLOW_CONFIG_BUCKET = 'europe-west2-dev-airflow-9b1988dd-bucket'
 PROD_AIRFLOW_CONFIG_BUCKET = 'europe-west2-prod-airflow-66feabb0-bucket'
@@ -36,7 +37,7 @@ def upload_airflow_config_file(ctx, env):
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(config_gs_bucket)
-    blob = bucket.blob('dags/etl_configs/{}/config.yaml'.format(PIPELINE_NAME))
+    blob = bucket.blob('dags/etl_configs/{}/config.yaml'.format(DAG_NAME))
     blob.upload_from_filename('{}/{}_{}.yaml'.format(AIRFLOW_DIRECTORY, 'config', env))
 
 
@@ -47,8 +48,8 @@ def upload_airflow_dag(ctx, env):
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(config_gs_bucket)
-    blob = bucket.blob('dags/{}.py'.format(PIPELINE_NAME))
-    blob.upload_from_filename('{}/{}.py'.format(AIRFLOW_DIRECTORY, PIPELINE_NAME))
+    blob = bucket.blob('dags/{}.py'.format(DAG_NAME))
+    blob.upload_from_filename('{}/{}.py'.format(AIRFLOW_DIRECTORY, DAG_NAME))
 
 
 @task()
