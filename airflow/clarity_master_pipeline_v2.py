@@ -110,7 +110,7 @@ with models.DAG(dag_id=PACKAGE_NAME,
     operators['dim_spark_campaigns'] >> operators['tcuk']
     operators['dim_spark_campaigns'] >> operators['article_tcuk']
     operators['dim_spark_campaigns'] >> operators['applenews']
-    operators['dim_spark_campaigns'] >> operators['applenews']
+    operators['dim_spark_campaigns'] >> operators['article_applenews']
     operators['dim_spark_campaigns'] >> operators['liveapp']
     operators['dim_spark_campaigns'] >> operators['editionapp']
 
@@ -119,5 +119,5 @@ with models.DAG(dag_id=PACKAGE_NAME,
     operators['dim_spark_campaigns_urls'] >> operators['editionapp']
 
     operators['tcuk'] >> operators['article_tcuk']
-    operators['applenews'] >> operators['applenews']
+    operators['applenews'] >> operators['article_applenews']
 
