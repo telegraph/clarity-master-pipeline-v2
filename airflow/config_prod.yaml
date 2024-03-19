@@ -52,14 +52,14 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-    image: eu.gcr.io/tmg-data-prod/up-source-pipeline
+    image: eu.gcr.io/tmg-data-prod/clarity-article-tcuk-pipeline
     tag: 1.0.0
 
   applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-    image: eu.gcr.io/tmg-data-prod/up-source-pipeline
+    image: eu.gcr.io/tmg-data-prod/clarity-applenews-pipeline
     tag: 1.0.0
 
   article_applenews:
