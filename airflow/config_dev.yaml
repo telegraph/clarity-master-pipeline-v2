@@ -60,7 +60,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-applenews-pipeline
-    tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+    tag: e06d07f371d9e646f33a5de6a081b13f68e12e37
 
   article_applenews:
     args:
