@@ -10,75 +10,75 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-pipeline
+    tag: 1.0.0
 
   dim_spark_campaigns_urls:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-urls-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-dim-spark-campaigns-urls-pipeline
+    tag: 1.0.0
 
   dfp:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-dfp-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-dfp-pipeline
+    tag: 1.0.0
 
   competition_formstack:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-formstack-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-formstack-pipeline
+    tag: 1.0.0
 
   video_youtube:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-youtube-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-youtube-pipeline
+    tag: 1.0.0
 
   tcuk:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-tcuk-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-tcuk-pipeline
+    tag: 1.0.0
 
   article_tcuk:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/up-source-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/up-source-pipeline
+    tag: 1.0.0
 
   applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/up-source-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/up-source-pipeline
+    tag: 1.0.0
 
   article_applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-article-applenews-pipeline
-      tag: 1.0.0
+    image: eu.gcr.io/tmg-data-prod/clarity-article-applenews-pipeline
+    tag: 1.0.0
 
   liveapp:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-appdata-pipeline
-      tag: 1.2.7
+    image: eu.gcr.io/tmg-data-prod/clarity-appdata-pipeline
+    tag: 1.2.7
 
   editionapp:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-prod/clarity-edition-app-pipeline-dbt
-      tag: 2.1
+    image: eu.gcr.io/tmg-data-prod/clarity-edition-app-pipeline-dbt
+    tag: 2.1
