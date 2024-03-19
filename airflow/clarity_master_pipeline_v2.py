@@ -108,11 +108,6 @@ with models.DAG(dag_id=PACKAGE_NAME,
     operators['dim_spark_campaigns'] >> operators['competition_formstack']
     operators['dim_spark_campaigns'] >> operators['video_youtube']
     operators['dim_spark_campaigns'] >> operators['tcuk']
-    operators['dim_spark_campaigns'] >> operators['article_tcuk']
-    operators['dim_spark_campaigns'] >> operators['applenews']
-    operators['dim_spark_campaigns'] >> operators['article_applenews']
-    operators['dim_spark_campaigns'] >> operators['liveapp']
-    operators['dim_spark_campaigns'] >> operators['editionapp']
 
     operators['dim_spark_campaigns_urls'] >> operators['applenews']
     operators['dim_spark_campaigns_urls'] >> operators['liveapp']
