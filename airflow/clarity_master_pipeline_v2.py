@@ -103,7 +103,6 @@ with models.DAG(dag_id=PACKAGE_NAME,
 
     dummy >> operators['dim_spark_campaigns']
 
-    operators['dim_spark_campaigns'] >> operators['dim_spark_campaigns_urls']
     operators['dim_spark_campaigns'] >> operators['dfp']
     operators['dim_spark_campaigns'] >> operators['competition_formstack']
     operators['dim_spark_campaigns'] >> operators['video_youtube']
