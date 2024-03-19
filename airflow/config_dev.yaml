@@ -59,8 +59,8 @@ pipelines:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
-      image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
-      tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
+    image: eu.gcr.io/tmg-data-preprod/up-source-pipeline
+    tag: d884563bcd35b6f8e01fad93485b26addf4d62d9
 
   article_applenews:
     args:
