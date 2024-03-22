@@ -46,7 +46,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-tcuk-pipeline
-    tag: 4d6b719bde1c28e441c4c9e429372d363285338e
+    tag: 9d138261f99075d63e3d2c1e4f8181a0195e9e18
 
   article_tcuk:
     args:
