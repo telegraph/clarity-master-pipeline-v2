@@ -1,0 +1,84 @@
+default_args:
+  catchup: false
+  delay: 2
+  retries: 3
+  schedule_interval: 30 7 * * *
+  starting_date: '20240314'
+
+pipelines:
+  dim_spark_campaigns:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
+    tag: 4afb1e2a536cf4dae0c3543b141d1cef20a7f948
+
+  dim_spark_campaigns_urls:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
+    tag: 4214904507b9f49d541f0edade1deee45ec78c1b
+
+  dfp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
+    tag: fe7d6bae46edca4e78b74bbe16bb612e45b3a6db
+
+  competition_formstack:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-formstack-pipeline
+    tag: a67ab5798eb768c97f07523c8ea160cdb66cf011
+
+  video_youtube:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-youtube-pipeline
+    tag: 5a70f3b42a2fa376a5c68cfcb1e4e32508e34253
+
+  tcuk:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-tcuk-pipeline
+    tag: 53e9bec43855ebb6ad5f81ca456fac873f60a465
+
+  article_tcuk:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-article-tcuk-pipeline
+    tag: 18f2d8327efcbf37b1fb2f6ff9b940ce59912e63
+
+  applenews:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-applenews-pipeline
+    tag: 7ae95cb04af58ea69c0e7105372c5cb1ee716678
+
+  article_applenews:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-article-applenews-pipeline
+    tag: f4ddc95c09f7ed6b800880fef8a56f739908e9c1
+
+  liveapp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-appdata-pipeline
+    tag: 00be694b05e62d14e0c654e1aa220bb3e8f6090e
+
+  editionapp:
+    args:
+      - execution_date: "{{ ds_nodash }}"
+      - next_execution_datetime: "{{ next_execution_date }}"
+    image: eu.gcr.io/tmg-data-preprod/clarity-edition-app-pipeline-dbt
+    tag: 65e423c833e26ec646e529e827c39b378655cc99
