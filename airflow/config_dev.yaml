@@ -3,7 +3,7 @@ default_args:
   delay: 2
   retries: 3
   schedule_interval: 30 7 * * *
-  starting_date: '20230215'
+  starting_date: '20240314'
 
 pipelines:
   dim_spark_campaigns:
@@ -11,14 +11,14 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-pipeline
-    tag: 3afaec69920be64706b1a34ed6b56317e925b3f8
+    tag: 4afb1e2a536cf4dae0c3543b141d1cef20a7f948
 
   dim_spark_campaigns_urls:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-dim-spark-campaigns-urls-pipeline
-    tag: 9d138261f99075d63e3d2c1e4f8181a0195e9e18
+    tag: 4214904507b9f49d541f0edade1deee45ec78c1b
 
   dfp:
     args:
@@ -32,42 +32,42 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-formstack-pipeline
-    tag: dd40146064021f35c95da0acc54ff521b04f25f4
+    tag: a67ab5798eb768c97f07523c8ea160cdb66cf011
 
   video_youtube:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-youtube-pipeline
-    tag: fce1be9fb6ee76cd51b228b8429aef5c4ed3cc77
+    tag: 5a70f3b42a2fa376a5c68cfcb1e4e32508e34253
 
   tcuk:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-tcuk-pipeline
-    tag: 4d6b719bde1c28e441c4c9e429372d363285338e
+    tag: 53e9bec43855ebb6ad5f81ca456fac873f60a465
 
   article_tcuk:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-article-tcuk-pipeline
-    tag: 99bc882a61fe275f62290f3ea9be4a4b026490ad
+    tag: 18f2d8327efcbf37b1fb2f6ff9b940ce59912e63
 
   applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-applenews-pipeline
-    tag: e06d07f371d9e646f33a5de6a081b13f68e12e37
+    tag: 7ae95cb04af58ea69c0e7105372c5cb1ee716678
 
   article_applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-article-applenews-pipeline
-    tag: b6d3b650894c1ea24a371b8bf8b36edad0242dd7
+    tag: f4ddc95c09f7ed6b800880fef8a56f739908e9c1
 
   liveapp:
     args:
