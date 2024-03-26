@@ -25,7 +25,7 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-dfp-pipeline
-    tag: fe7d6bae46edca4e78b74bbe16bb612e45b3a6db
+    tag: 7e05a1b03593886bd686b8cccb3e0947f90fd846
 
   competition_formstack:
     args:
