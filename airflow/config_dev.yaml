@@ -1,9 +1,9 @@
 default_args:
-  catchup: false
+  catchup: true
   delay: 2
   retries: 3
   schedule_interval: 30 7 * * *
-  starting_date: '20240314'
+  starting_date: '20240212'
 
 pipelines:
   dim_spark_campaigns:
