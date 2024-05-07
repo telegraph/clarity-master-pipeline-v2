@@ -60,14 +60,14 @@ pipelines:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-applenews-pipeline
-    tag: f731441cb637792c56462ad7de07365ef5dd27aa
+    tag: cb80375062d111dd4cae80cf31923d202753febb
 
   article_applenews:
     args:
       - execution_date: "{{ ds_nodash }}"
       - next_execution_datetime: "{{ next_execution_date }}"
     image: eu.gcr.io/tmg-data-preprod/clarity-article-applenews-pipeline
-    tag: f4ddc95c09f7ed6b800880fef8a56f739908e9c1
+    tag: 31e9780e0cddacbb5838e2fe4e5b1dffded495f6
 
   liveapp:
     args:
